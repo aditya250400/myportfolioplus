@@ -24,6 +24,7 @@ export default function ProfilePage() {
   const { myProfile } = useSelector((state) => state.myProfile);
   const { skills } = useSelector((state) => state.skills);
   const { portfolios } = useSelector((state) => state.portfolios);
+  const { postModal, modalProgress, modalPortfolio } = useSelector((state) => state.modal);
   const {
     posts,
     selectedPost,
@@ -32,33 +33,14 @@ export default function ProfilePage() {
     loading,
     loadingPaginate,
     current_page,
-    last_page
+    last_page,
+    currentPost
   } = useSelector((state) => state.posts);
   const [activeSession, setActiveSession] = useState('Portfolio');
-  const [openStudyModal, setOpenStudyModal] = useState(false);
-  const [openPortfolioModal, setOpenPortfolioModal] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
-  const { id } = useParams();
 
-  const isModalPostDetailOpen = location.pathname.startsWith('/profile/api/post');
 
-  const handlePostClick = (postId) => {
-    navigate(`/profile/api/post/${postId}`);
-  };
 
-  const handleLogout = () => {
-    dispatch(logoutUser({ navigate }));
-  };
-
-  const onCloseStudyModal = () => {
-    setOpenStudyModal(!openStudyModal);
-  };
-
-  const onClosePortfolioModal = () => {
-    setOpenPortfolioModal(!openPortfolioModal);
-  };
   const onPaginateExtend = () => {
     dispatch(setPage());
   };
@@ -68,7 +50,7 @@ export default function ProfilePage() {
   }, [dispatch, searchInput, page, selectedPost]);
 
   useEffect(() => {
-    if (openStudyModal || openPortfolioModal) {
+    if (modalProgress || modalPortfolio) {
       document.body.style.overflow = 'hiddAen';
     } else {
       document.body.style.overflow = 'unset';
@@ -77,7 +59,7 @@ export default function ProfilePage() {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [openStudyModal, openPortfolioModal]);
+  }, [modalProgress, modalPortfolio]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -97,14 +79,9 @@ export default function ProfilePage() {
         <div className="sticky top-0 z-50">
           <Navbar
             myProfile={myProfile}
-            openModalStudy={onCloseStudyModal}
-            isOpenModalStudyInput={openStudyModal}
-            openModalPortfolio={onClosePortfolioModal}
-            isOpenModalPortfolioInput={openPortfolioModal}
-            logout={handleLogout}
           />
         </div>
-        <div className="container sm:mt-5 lg:px-52">
+        <div className="container mt-5 px-2 md:mt-0 lg:px-52">
           <HeadProfile myProfile={myProfile} />
           <AboutProfile myProfile={myProfile} />
           <SkillsProfile myProfile={myProfile} skills={skills} />
@@ -172,16 +149,14 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        {openStudyModal && (
-          <WriteProgressInputModal closeModal={onCloseStudyModal} myProfile={myProfile} />
+        {modalProgress && (
+          <WriteProgressInputModal myProfile={myProfile} />
         )}
-        {openPortfolioModal && (
-          <PortfolioInputModal myProfile={myProfile} closeModal={onClosePortfolioModal} />
+        {modalPortfolio && (
+          <PortfolioInputModal myProfile={myProfile}  />
         )}
-        {isModalPostDetailOpen &&
-          posts
-            .filter((post) => post.id === +id)
-            .map((post) => <PostDetailModal key={post.id} {...post} />)}
+        {postModal &&
+          <PostDetailModal {...currentPost} />}
       </section>
     </>
   );

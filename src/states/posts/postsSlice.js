@@ -8,22 +8,25 @@ import {
   postsAsync,
   upVotesPostAsync
 } from './postThunk';
+import { logoutUser } from '../authUser/authUserThunk';
 
 const initialState = {
   posts: [],
-  postsBackup: [],
-  votes: null,
   mostLikedPosts: [],
-  searchInput: '',
+  currentPost: null,
   selectedPost: 'All Posts',
+  status: 'idle',
+  searchInput: '',
   page: 1,
   current_page: 1,
   last_page: 1,
-  status: 'idle',
+  votes: null,
   error: null,
   loading: false,
+  loadingWhenCreatingPost: false,
   loadingPaginate: false,
-  loadingLikedPosts: false
+  loadingLikedPosts: false,
+  loadingCurrentPost: false,
 };
 
 const postsSlice = createSlice({
@@ -57,6 +60,10 @@ const postsSlice = createSlice({
         post.post_up_votes = post.post_up_votes || [];
         post.post_up_votes.push({ user_id, post_id });
       }
+    },
+    
+    setCurrentPostToNull: (state) => {
+      state.currentPost = null;
     }
   },
   extraReducers: (builder) => {
@@ -107,7 +114,6 @@ const postsSlice = createSlice({
         state.status = 'loading';
         state.loading = state.page === 1 ? true : false;
         state.loadingPaginate = state.page === 1 ? false : true;
-        state.selectedPost = 'My Posts';
       })
       .addCase(getMyPostAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
@@ -130,18 +136,17 @@ const postsSlice = createSlice({
       })
       .addCase(getDetailPostAsync.pending, (state) => {
         state.status = 'loading';
-        state.loading = true;
-        state.currentPost = null;
+        state.loadingCurrentPost = !state.postModal ? true : false;
       })
       .addCase(getDetailPostAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.loading = false;
+        state.loadingCurrentPost = false;
         state.error = null;
         state.currentPost = action.payload;
       })
       .addCase(getDetailPostAsync.rejected, (state, action) => {
         state.status = 'rejected';
-        state.loading = false;
+        state.loadingCurrentPost = false;
         state.error = action.payload;
         state.currentPost = null;
       })
@@ -149,20 +154,18 @@ const postsSlice = createSlice({
         state.status = 'loading';
         state.current_page = 1;
         state.page = 1;
-        state.loading = true;
+        state.loadingWhenCreatingPost = true;
         state.searchInput = '';
         state.selectedPost = 'All Posts';
       })
       .addCase(createPostAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.loading = false;
+        state.loadingWhenCreatingPost = false;
         state.error = null;
-        state.posts = action.payload;
       })
-      .addCase(createPostAsync.rejected, (state, action) => {
+      .addCase(createPostAsync.rejected, (state) => {
         state.status = 'rejected';
-        state.loading = false;
-        state.error = action.payload;
+        state.loadingWhenCreatingPost = false;
       })
       .addCase(upVotesPostAsync.pending, (state) => {
         state.status = 'pending';
@@ -194,7 +197,25 @@ const postsSlice = createSlice({
         state.status = 'rejected';
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+          state.posts = [];
+          state.mostLikedPosts = [];
+          state.currentPost = null;
+          state.selectedPost = 'All Posts';
+          state.status = 'idle';
+          state.searchInput = '';
+          state.page = 1;
+          state.current_page = 1;
+          state.last_page = 1;
+          state.votes = null;
+          state.error = null;
+          state.loading = false;
+          state.loadingPaginate = false;
+          state.loadingWhenCreatingPost = false;
+          state.loadingLikedPosts = false;
+      })
+      ;
   }
 });
 export const {
@@ -203,6 +224,7 @@ export const {
   setSelectedPost,
   setPageToOne,
   upVotes,
-  upVotesMostLikedPosts
+  upVotesMostLikedPosts,
+  setCurrentPostToNull
 } = postsSlice.actions;
 export default postsSlice.reducer;

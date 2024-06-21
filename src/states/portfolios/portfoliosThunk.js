@@ -2,6 +2,9 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { hideLoading, showLoading } from 'react-redux-loading-bar';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../api/axiosConfig';
+import { myProfileAsync } from '../myProfile/myProfileThunk';
+import { setModalPortfolio } from '../modal/modalSlice';
+import { getMostActiveUsers } from '../user/userThunk';
 
 export const portfoliosAsync = createAsyncThunk(
   'auth/portfolios',
@@ -18,6 +21,25 @@ export const portfoliosAsync = createAsyncThunk(
     }
   }
 );
+
+
+export const deletePortfolioAsync = createAsyncThunk(
+  'auth/portfolioDelete',
+  async ({id, navigate}, { dispatch, rejectWithValue }) => {
+    dispatch(showLoading());
+    try {
+      const response = await axiosInstance.delete(`/api/portfolios/${id}`);
+      setTimeout(() => toast.success('Portfolio Deleted!'), 500);
+      navigate(-1);
+    } catch (error) {
+      toast.error(error.response.data);
+      return rejectWithValue({ error: error.response.data });
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+);
+
 
 export const portfolioDetailAsync = createAsyncThunk(
   'auth/portfolioDetail',
@@ -53,8 +75,10 @@ export const createPortfolioAsync = createAsyncThunk(
       });
 
       dispatch(portfoliosAsync());
-
-      toast.success(response.data);
+      dispatch(myProfileAsync());
+      dispatch(setModalPortfolio(false));
+      dispatch(getMostActiveUsers({page: 1}));
+      setTimeout(() => toast.success('Portfolio Successfull Created!\nCheck Your Profile'), 500);
       return response.data;
     } catch (error) {
       toast.error(error.response.data);

@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { hideLoading, showLoading } from 'react-redux-loading-bar';
 import axiosInstance from '../../api/axiosConfig';
 import { toast } from 'react-toastify';
+import { getDetailPostAsync } from '../posts/postThunk';
 
 export const getAllCommentsAsync = createAsyncThunk(
   'comments/getAllComments',
@@ -39,8 +40,9 @@ export const createCommentAsync = createAsyncThunk(
     dispatch(showLoading());
     try {
       const response = await axiosInstance.post('/api/comments', commentData);
-      dispatch(getAllCommentsAsync());
       toast.success(response.data.message);
+      commentData.setComment('');
+      dispatch(getDetailPostAsync({id: commentData.post_id}))
       return response.data;
     } catch (error) {
       toast.error(error.data.message);

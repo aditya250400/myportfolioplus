@@ -9,7 +9,9 @@ import { formattedDate, formattedTime } from '../../utils';
 import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile.png';
 import { useDispatch } from 'react-redux';
 import { createCommentAsync } from '../../states/comments/commentsThunk';
-import { getDetailPostAsync } from '../../states/posts/postThunk';
+import { setCurrentPostToNull } from '../../states/posts/postsSlice';
+import { IoClose } from 'react-icons/io5';
+import { setPostModal } from '../../states/modal/modalSlice';
 
 export default function PostDetail({
   id,
@@ -28,7 +30,7 @@ export default function PostDetail({
   const dispatch = useDispatch();
 
   const onCommentChangeHandler = (e) => {
-    setComment(e.target.innerText);
+    setComment(e.target.value);
   };
 
   const onFocusCommentInput = () => {
@@ -36,20 +38,30 @@ export default function PostDetail({
   };
 
   const onClickCommentHandler = () => {
-    dispatch(createCommentAsync({ content: comment, post_id: id }));
-    dispatch(getDetailPostAsync({ id }));
+    dispatch(createCommentAsync({ content: comment, post_id: id, setComment }));
   };
+
+  const onCloseModal = () => {
+    dispatch(setPostModal(false))
+    dispatch(setCurrentPostToNull())
+    setComment('');
+  }
+
 
   return (
     <section
-      className={`container flex h-[40rem] ${comments > 0 ? 'h-[40rem]' : 'h-fit'} w-96  ${image ? 'sm:w-[70rem]' : ''} rounded-md text-textPrimary bg-eerieBlack`}
+      className={`px-3 md:px-0 container flex h-[40rem] ${comments > 0 ? 'h-[40rem]' : 'h-fit'} w-96  ${image ? 'sm:w-[70rem]' : ''}  rounded-md text-textPrimary bg-eerieBlack`}
     >
       <div className="flex min-w-full">
-        <div className={`items-baseline hidden w-full h-full  ${image ? 'md:flex' : 'hidden'}`}>
-          <img src={image} alt="post" className="object-contain w-full h-full " />
+        <div className={`items-baseline w-full h-full`}>
+          <img src={image} alt="post" className="object-contain w-full h-full px-2"/>
         </div>
-        <div className="relative flex flex-col w-full md:max-w-[25rem]">
+        <div className="relative flex flex-col items-center w-full md:max-w-[25rem]">
+        
           <div className="absolute left-0 z-20 flex items-center w-full gap-3 px-4 py-2">
+          <button className="absolute right-2 top-1 md:right-0 md:top-0" onClick={onCloseModal}>
+              <IoClose className="text-3xl text-textSecondary" />
+          </button>
             <img
               src={user?.photo_profile?.photo_profile || placeholderPhotoProfile}
               alt="img post"
@@ -61,7 +73,8 @@ export default function PostDetail({
             </div>
           </div>
           <div className="px-4 py-2 overflow-auto border-y border-[#262626] h-[25rem] mt-12">
-            <div dangerouslySetInnerHTML={desc} className="text-[15px] text-textPrimary" />
+            <div dangerouslySetInnerHTML={desc} className="text-[15px] text-textPrimary whitespace-pre-wrap" />
+          <img src={image} alt="post" className="md:hidden object-contain w-full mt-1"/>
             <div className="flex gap-2 mt-2 text-[10px] font-medium">
               <p className="text-[#A9A9A9]">{formattedDate(created_at)}</p>
               <p className="text-[#7A7A7A]">•</p>
@@ -96,7 +109,7 @@ export default function PostDetail({
                             {comment.user.biodata?.role}
                           </p>
                         </div>
-                        <p className="text-xs">{comment.content}</p>
+                        <p className="text-xs whitespace-pre-wrap">{comment.content}</p>
                       </div>
                       <div className="flex gap-1 my-2 text-xs text-textPrimary">
                         <button>Like</button>
@@ -116,7 +129,7 @@ export default function PostDetail({
             </div>
           </div>
           <div className="flex flex-col gap-1 px-4 pb-2 text-xs">
-            <div className="flex gap-5 my-3 sm:px-0 text-textPrimary">
+            <div className="flex gap-5 my-3 text-textPrimary">
               <div className="flex items-center gap-1">
                 <button
                   className={
@@ -149,7 +162,7 @@ export default function PostDetail({
                 <p>{comments.length}</p>
               </div>
             </div>
-            <div className="flex items-center w-full gap-2">
+            <div className="flex items-center w-full gap-2 ">
               <img
                 src={
                   myProfile === null || myProfile.photo_profile === null
@@ -160,14 +173,13 @@ export default function PostDetail({
                 className="object-cover rounded-full w-7 h-7"
               />
               <div className="flex gap-2">
-                <div
+                <textarea
                   ref={commentInputRef}
                   className={`py-2 px-3 w-[17rem] ${image ? 'md:w-72' : 'md:w-64'} text-[10px] bg-searchInput border border-[#262626] rounded-md text-textPrimary overflow-auto h-10 cursor-text text-sm  placeholder:text-textPrimary focus:border-[#2d2d2d] focus:outline focus:ring-0`}
-                  contentEditable
-                  onInput={onCommentChangeHandler}
-                  data-placeholder="Add a comment"
-                />
-                <button
+                  onChange={onCommentChangeHandler}
+                  value={comment}
+                  ></textarea>
+                <button 
                   type="submit"
                   onClick={() => onClickCommentHandler()}
                   className="bg-searchInput transition-all duration-300 hover:text-ufoGreen right-0 px-3 me-10 w-auto rounded-md py-2 h-10 text-lg font-medium hover:shadow text-[#A9A9A9] hover:bg-opacity-70"

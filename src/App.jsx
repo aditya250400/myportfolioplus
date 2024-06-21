@@ -36,11 +36,9 @@ function App() {
       ) : (
         <>
           <Route index element={<HomePage />} />
-          <Route path="/api/posts/:id" element={<HomePage />} />
           <Route path="/profile/myProfile" element={<ProfilePage />} />
           <Route path="/profile/:id" element={<ProfileDetailPage />} />
           <Route path="/profile/api/post/:id" element={<ProfilePage />} />
-          <Route path="/profileDetail/api/post/:id" element={<ProfileDetailPage />} />
           <Route path="/portfolio-detail/:id" element={<PortfolioDetailPage />} />
           <Route path="/most-active-users/all" element={<SuggestedDeveloperPage />} />
           <Route path="/test" element={<SuggestedDeveloperLoading />} />

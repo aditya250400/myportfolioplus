@@ -43,7 +43,7 @@ export default function SuggestedDeveloper() {
                 </div>
               </div>
               <Link
-                to={`/profile/${userProfile.id === myProfile.id ? 'myProfile' : userProfile.id}`}
+                to={`/profile/${userProfile.id === myProfile?.id ? 'myProfile' : userProfile.id}`}
               >
                 <Button
                   color=""

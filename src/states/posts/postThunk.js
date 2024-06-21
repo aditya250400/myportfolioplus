@@ -2,6 +2,8 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { hideLoading, showLoading } from 'react-redux-loading-bar';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../api/axiosConfig';
+import { myProfileAsync } from '../myProfile/myProfileThunk';
+import { setModalProgress } from '../modal/modalSlice';
 
 export const postsAsync = createAsyncThunk(
   'auth/posts',
@@ -14,6 +16,23 @@ export const postsAsync = createAsyncThunk(
         current_page: response.data.data.current_page,
         last_page: response.data.data.last_page
       };
+    } catch (error) {
+      toast.error(error.response.data);
+      return rejectWithValue({ error: error.response.data });
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+);
+
+export const deletePostAsync = createAsyncThunk(
+  'auth/postsDelete',
+  async ({id}, { dispatch, rejectWithValue }) => {
+    dispatch(showLoading());
+    try {
+      const response = await axiosInstance.delete(`/api/posts/${id}`);
+      dispatch(getMyPostAsync({page: 1, searchInput: ''}));
+      setTimeout(() => toast.success('Post Deleted!'));
     } catch (error) {
       toast.error(error.response.data);
       return rejectWithValue({ error: error.response.data });
@@ -77,7 +96,7 @@ export const getDetailPostAsync = createAsyncThunk(
 
 export const createPostAsync = createAsyncThunk(
   'auth/createPost',
-  async ({ content, image }, { dispatch, rejectWithValue }) => {
+  async ({ content, image, navigate }, { dispatch, rejectWithValue }) => {
     dispatch(showLoading());
 
     try {
@@ -90,11 +109,11 @@ export const createPostAsync = createAsyncThunk(
           'Content-Type': 'multipart/form-data'
         }
       });
-      dispatch(postsAsync());
-
-      const newPosts = await axiosInstance.get(`/api/posts`);
-      toast.success(response.data);
-      return newPosts.data.data.data;
+      setTimeout(() => toast.success(response.data.message) , 500);
+      dispatch(postsAsync({page: 1, searchInput: ""}));
+      dispatch(myProfileAsync());
+      dispatch(setModalProgress(false));
+      dispatch(navigate('/'));
     } catch (error) {
       toast.error(error.response.data);
       return rejectWithValue({ error: error.response.data });

@@ -85,13 +85,6 @@ const myProfileSlice = createSlice({
         state.loadingPhotoProfile = false;
       })
       // create and update photo profile end
-
-      .addCase(logoutUser.pending, (state) => {
-        state.status = 'loading';
-        state.loading = true;
-        state.loadingPhotoProfile = true;
-        state.loadingBackground = true;
-      })
       .addCase(logoutUser.fulfilled, (state) => {
         state.myProfile = null;
         state.status = 'idle';

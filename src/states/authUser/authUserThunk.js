@@ -14,14 +14,14 @@ const authUserAsync = createAsyncThunk(
     try {
       const response = await axiosInstance.post('/api/login', { email, password });
       localStorage.setItem('access_token', response.data.token);
-      toast.success('Login successful');
+      setTimeout(() => toast.success('Login successful'), 500);
       return response.data;
     } catch (error) {
       if (error.message === 'Network Error') {
         toast.error('Network Error: Please check your connection');
         return rejectWithValue({ error: 'No internet connection' });
       }
-      const errorMessage = error.response?.data?.message ?? 'Email and password is incorrect';
+      const errorMessage = error.response?.data?.message ?? error.response.data;
       toast.error(errorMessage);
       return rejectWithValue({ error: errorMessage });
     }
@@ -50,7 +50,7 @@ const logoutUser = createAsyncThunk(
       await axiosInstance.post('/api/logout');
       localStorage.removeItem('access_token');
       navigate('/');
-      toast.success('Logout successful');
+      setTimeout(() => toast.success('Logout successful'), 500);
       return { token: null };
     } catch (error) {
       toast.error(error.message);

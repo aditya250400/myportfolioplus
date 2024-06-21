@@ -23,36 +23,20 @@ import { setPageUserToOne } from '../states/user/userSlice';
 export default function ProfileDetailPage() {
   const { myProfile } = useSelector((state) => state.myProfile);
   const { user } = useSelector((state) => state.users);
-  const { posts } = useSelector((state) => state.posts);
+  const { currentPost } = useSelector((state) => state.posts);
+  const {modalProgress , modalPortfolio, postModal} = useSelector((state) => state.modal);
   const [activeSession, setActiveSession] = useState('Portfolio');
-  const [openStudyModal, setOpenStudyModal] = useState(false);
-  const [openPortfolioModal, setOpenPortfolioModal] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const { id } = useParams();
 
-  const isModalPostDetailOpen = location.pathname.startsWith('/profileDetail/api/post');
 
-  const handlePostClick = (postId) => {
-    navigate(`/profileDetail/api/post/${postId}`);
-  };
-
-  const handleLogout = () => {
-    dispatch(logoutUser({ navigate }));
-  };
-
-  const onCloseStudyModal = () => {
-    setOpenStudyModal(!openStudyModal);
-  };
-
-  const onClosePortfolioModal = () => {
-    setOpenPortfolioModal(!openPortfolioModal);
+  const handlePostClick = (postId) => {    
+    dispatch(getDetailPostAsync({id: postId}));
   };
 
   useEffect(() => {
-    if (openStudyModal || openPortfolioModal) {
-      document.body.style.overflow = 'hiddAen';
+    if (modalProgress || modalPortfolio) {
+      document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -60,7 +44,7 @@ export default function ProfileDetailPage() {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [openStudyModal, openPortfolioModal]);
+  }, [modalProgress, modalPortfolio]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -82,11 +66,6 @@ export default function ProfileDetailPage() {
         <div className="sticky top-0 z-50">
           <Navbar
             myProfile={myProfile}
-            openModalStudy={onCloseStudyModal}
-            isOpenModalStudyInput={openStudyModal}
-            openModalPortfolio={onClosePortfolioModal}
-            isOpenModalPortfolioInput={openPortfolioModal}
-            logout={handleLogout}
           />
         </div>
         <div className="container sm:mt-5 lg:px-52">
@@ -153,16 +132,14 @@ export default function ProfileDetailPage() {
             </div>
           </div>
         </div>
-        {openStudyModal && (
-          <WriteProgressInputModal closeModal={onCloseStudyModal} myProfile={myProfile} />
+        {modalProgress && (
+          <WriteProgressInputModal myProfile={myProfile} />
         )}
-        {openPortfolioModal && (
-          <PortfolioInputModal myProfile={myProfile} closeModal={onClosePortfolioModal} />
+        {modalPortfolio && (
+          <PortfolioInputModal myProfile={myProfile} />
         )}
-        {isModalPostDetailOpen &&
-          posts
-            .filter((post) => post.id === +id)
-            .map((post) => <PostDetailModal key={post.id} {...post} />)}
+        {postModal &&
+        <PostDetailModal {...currentPost} />}
       </section>
     </>
   );

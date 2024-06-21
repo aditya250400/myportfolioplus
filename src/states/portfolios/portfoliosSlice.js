@@ -7,7 +7,8 @@ const initialState = {
   portfolio: null,
   status: 'idle',
   error: null,
-  loading: false
+  loading: false,
+  loadingWhenCreatingPortfolio: false,
 };
 
 const portfolioSlice = createSlice({
@@ -51,17 +52,16 @@ const portfolioSlice = createSlice({
       })
       .addCase(createPortfolioAsync.pending, (state) => {
         state.status = 'loading';
-        state.loading = true;
+        state.loadingWhenCreatingPortfolio = true;
       })
-      .addCase(createPortfolioAsync.fulfilled, (state, action) => {
+      .addCase(createPortfolioAsync.fulfilled, (state) => {
         state.status = 'succeeded';
-        state.loading = false;
+        state.loadingWhenCreatingPortfolio = false;
         state.error = null;
-        state.portfolios = action.payload.data;
       })
       .addCase(createPortfolioAsync.rejected, (state, action) => {
         state.status = 'rejected';
-        state.loading = false;
+        state.loadingWhenCreatingPortfolio = false;
         state.error = action.payload;
       })
       .addCase(logoutUser.fulfilled, (state) => {

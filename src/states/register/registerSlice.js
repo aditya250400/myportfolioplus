@@ -22,11 +22,12 @@ const registerSlice = createSlice({
         state.status = 'succeeded';
         state.loading = false;
         state.user = action.payload;
+        state.error = null;
       })
       .addCase(registerAsync.rejected, (state, action) => {
         state.status = 'rejected';
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.error;
       });
   }
 });

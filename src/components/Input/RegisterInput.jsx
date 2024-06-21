@@ -89,6 +89,7 @@ export default function RegisterInput({ register, isLoading }) {
             <Button
               color=""
               onClick={toggleShowPassword}
+              tabIndex={-1}
               className="absolute top-[2px] right-0 rounded-none ring-0 focus:ring-0"
             >
               {showPassword ? (
@@ -119,6 +120,7 @@ export default function RegisterInput({ register, isLoading }) {
             <Button
               color=""
               onClick={toggleShowConfirmPassword}
+              tabIndex={-1}
               className="absolute top-[2px] right-0 rounded-none ring-0 focus:ring-0"
             >
               {showConfirmPassword ? (
@@ -133,7 +135,7 @@ export default function RegisterInput({ register, isLoading }) {
           color=""
           type="submit"
           size="sm"
-          className={`mt-5 rounded-full bg-fernGreen text-textPrimary hover:opacity-90 ${!name || !email || !password || !password_confirmation || isLoading ? 'opacity-70 hover:opacity-70' : ''}`}
+          className={`mt-5 rounded-full bg-fernGreen text-textPrimary hover:opacity-90 focus:opacity-90 ${!name || !email || !password || !password_confirmation || isLoading ? 'opacity-70 hover:opacity-70' : ''}`}
           disabled={!name || !email || !password || !password_confirmation || isLoading}
         >
           <span className="text-lg font-semibold">

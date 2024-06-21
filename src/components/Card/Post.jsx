@@ -8,8 +8,11 @@ import { useExpand } from '../../hooks/useExpand';
 import { formattedDate, formattedTime } from '../../utils';
 import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile.png';
 import { Popover } from 'flowbite-react';
-import { useSelector } from 'react-redux';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { MdDelete } from "react-icons/md";
+import { deletePostAsync, getDetailPostAsync } from '../../states/posts/postThunk';
+import { BiEdit } from "react-icons/bi";
+import { setPostModal } from '../../states/modal/modalSlice';
 export default function Post({
   id,
   content,
@@ -19,24 +22,22 @@ export default function Post({
   user,
   created_at,
   updated_at,
-  handleClick,
   handleVotesClick,
-  page
 }) {
   const { isExpanded, isTruncated, textRef, toggleExpanded } = useExpand();
-  const navigate = useNavigate();
   const desc = { __html: content };
   const { myProfile } = useSelector((state) => state.myProfile);
+  const dispatch = useDispatch();
 
   const handleToggleExpanded = () => {
-    if (page === '/') {
       toggleExpanded(!isExpanded);
-    } else if (page === `/profile`) {
-      navigate(`/profile/api/post/${id}`);
-    } else if (page === `/profileDetail`) {
-      navigate(`/profileDetail/api/post/${id}`);
     }
-  };
+
+    const handlePostDetail = (postId) => {
+      dispatch(getDetailPostAsync({id: postId}));
+      dispatch(setPostModal(true));
+    }
+  
 
   const contentPopOver = (
     <div className="w-64 p-3 bg-searchInput text-textPrimary">
@@ -62,7 +63,7 @@ export default function Post({
           {user.name}
         </p>
         <p className="text-[10px] font-medium text-textSecondary">
-          ({user.biodata == null ? '' : user.biodata.role})
+          {user.biodata == null || user.biodata.role == null ? '' :  `(${user.biodata.role})`}
         </p>
       </div>
       <ul className="flex text-sm">
@@ -78,6 +79,10 @@ export default function Post({
       </ul>
     </div>
   );
+
+  const onDeletePost = (postId) => {
+    dispatch(deletePostAsync({id: postId}));
+  }
 
   return (
     <section className="w-auto py-3 rounded-md h-fit sm:p-4 bg-eerieBlack sm:rounded-xl">
@@ -120,7 +125,7 @@ export default function Post({
         <div
           dangerouslySetInnerHTML={desc}
           ref={textRef}
-          className={`text-sm text-[#eaeaea] leading-5 px-2 sm:px-0 ${
+          className={`text-sm text-[#eaeaea] leading-5 px-2 sm:px-0 overflow-auto whitespace-pre-wrap ${
             isExpanded ? '' : 'line-clamp-2'
           }`}
         />
@@ -136,38 +141,50 @@ export default function Post({
 
       <div className="w-full h-[2px] bg-[#262626]" />
 
-      <div className="flex gap-5 px-2 my-2 sm:px-0 text-textPrimary">
+      <div className="flex justify-between items-center text-textPrimary">
+       <div className='flex gap-5 px-2 my-2 sm:px-0'>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => handleVotesClick(id)}
-            className={
-              post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
-                ? 'hover:cursor-not-allowed'
-                : ''
-            }
-            disabled={
-              post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
-                ? true
-                : false
-            }
-          >
-            <img
-              src={
+            <button
+              type="button"
+              onClick={() => handleVotesClick(id)}
+              className={
                 post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
-                  ? iconLoveFilled
-                  : iconLove
+                  ? 'hover:cursor-not-allowed'
+                  : ''
               }
-              alt=""
-              className="w-7"
-            />
+              disabled={
+                post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
+                  ? true
+                  : false
+              }
+            >
+              <img
+                src={
+                  post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
+                    ? iconLoveFilled
+                    : iconLove
+                }
+                alt=""
+                className="w-7"
+              />
+            </button>
+            <p>{post_up_votes.length}</p>
+          </div>
+          <button type="button" className="flex items-center gap-2" onClick={() => handlePostDetail(id)}>
+            <img src={iconComment} alt="" className="w-6" />
+            <p>{comments.length}</p>
           </button>
-          <p>{post_up_votes.length}</p>
+       </div>
+        <div>
+          {
+            location.pathname === "/profile/myProfile" ? (
+              <div className='flex gap-2'>
+                <button onClick={() => alert("This feature is still being create")} className='text-2xl'> <BiEdit /></button>
+                <button onClick={() => onDeletePost(id)} className='text-2xl'> <MdDelete /></button>
+              </div>
+            ) : null
+          }
         </div>
-        <button type="button" className="flex items-center gap-2" onClick={() => handleClick(id)}>
-          <img src={iconComment} alt="" className="w-6" />
-          <p>{comments.length}</p>
-        </button>
       </div>
     </section>
   );
@@ -183,6 +200,6 @@ Post.propTypes = {
   created_at: PropTypes.string.isRequired,
   updated_at: PropTypes.string.isRequired,
   user: PropTypes.instanceOf(Object).isRequired,
-  handleClick: PropTypes.func.isRequired,
-  handleVotesClick: PropTypes.func.isRequired
+  handleClick: PropTypes.func,
+  handleVotesClick: PropTypes.func
 };

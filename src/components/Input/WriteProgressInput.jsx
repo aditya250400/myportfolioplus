@@ -4,23 +4,23 @@ import { IoClose, IoAlertCircleSharp } from 'react-icons/io5';
 import { FileInput, Button } from 'flowbite-react';
 import PropTypes from 'prop-types';
 import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile.png';
-import { useDispatch } from 'react-redux';
-import { createPostAsync, postsAsync } from '../../states/posts/postThunk';
-import { myProfileAsync } from '../../states/myProfile/myProfileThunk';
+import { useDispatch, useSelector } from 'react-redux';
+import { createPostAsync} from '../../states/posts/postThunk';
+import { ImSpinner2 } from 'react-icons/im';
+import { setModalProgress } from '../../states/modal/modalSlice';
+import { useNavigate } from 'react-router-dom';
 
-export default function WriteProgressInput({ closeModal: closeParentModal, myProfile }) {
+export default function WriteProgressInput({ myProfile }) {
   const [content, setContent] = useState('');
   const [contentNotification, setContentNotification] = useState('');
   const [fileNotification, setFileNotification] = useState('');
-  const [modalStatus, setModalStatus] = useState('open');
   const [file, setFile] = useState(null);
-
+  const {loadingWhenCreatingPost} = useSelector((state) => state.posts);
+  const {modalProgress} = useSelector((state) => state.modal);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const inputRef = useRef(null);
 
-  const closeModal = () => {
-    setModalStatus('closing');
-  };
 
   const onContentChangeHandler = (e) => {
     setContent(e.target.innerText);
@@ -50,32 +50,20 @@ export default function WriteProgressInput({ closeModal: closeParentModal, myPro
     } else if (!fileTypes.includes(file.type)) {
       setFileNotification('Only JPG, JPEG, and PNG files are allowed');
     } else {
-      await dispatch(createPostAsync({ content, image: file }));
-      dispatch(postsAsync());
-      dispatch(myProfileAsync());
-      closeModal();
+      dispatch(createPostAsync({ content, image: file, navigate}));
     }
   };
 
   useEffect(() => {
-    if (modalStatus === 'closing') {
-      setTimeout(() => {
-        closeModal();
-        closeParentModal();
-      }, 500);
-    }
-  }, [modalStatus, closeModal, closeParentModal]);
-
-  useEffect(() => {
-    if (modalStatus === 'open' && inputRef.current) {
+    if (modalProgress&& inputRef.current) {
       inputRef.current.focus();
     }
-  }, [modalStatus]);
+  }, [modalProgress]);
 
   return (
     <section
       className={`w-full h-full sm:w-[40rem] mx-auto sm:my-16 rounded-xl text-textPrimary bg-eerieBlack animate__animated ${
-        modalStatus === 'open'
+        modalProgress
           ? 'animate__fadeInDown animate__faster'
           : 'animate__fadeOutUp animate__faster'
       }`}
@@ -104,7 +92,7 @@ export default function WriteProgressInput({ closeModal: closeParentModal, myPro
           <button
             type="button"
             className="p-1 text-2xl transition-all duration-200 ease-out rounded-full cursor-pointer hover:bg-fernGreen"
-            onClick={closeModal}
+            onClick={() => dispatch(setModalProgress(false))}
             onKeyDown={() => {}}
             tabIndex={0}
             aria-label="Close"
@@ -119,7 +107,9 @@ export default function WriteProgressInput({ closeModal: closeParentModal, myPro
             contentEditable
             onInput={onContentChangeHandler}
             data-placeholder="Write your progress here..."
-          />
+          >
+            
+          </div>
           {contentNotification && (
             <div className="flex gap-1 mt-1">
               <IoAlertCircleSharp className="text-sm text-red-500" />
@@ -150,9 +140,14 @@ export default function WriteProgressInput({ closeModal: closeParentModal, myPro
           color=""
           onClick={onShareClickHandler}
           className={`font-semibold bg-fernGreen active:outline-none active:ring-none hover:bg-opacity-80 ${!content || !file ? 'bg-opacity-100 hover:bg-opacity-100' : ''}`}
-          disabled={!content || !file}
+          disabled={!content || !file || loadingWhenCreatingPost}
         >
-          Share
+         {
+          loadingWhenCreatingPost ? 
+            <ImSpinner2 className="text-center w-6 h-6 text-white animate-spin" /> : 
+            'Share'
+
+         }
         </Button>
       </div>
     </section>
@@ -160,6 +155,5 @@ export default function WriteProgressInput({ closeModal: closeParentModal, myPro
 }
 
 WriteProgressInput.propTypes = {
-  closeModal: PropTypes.func,
   myProfile: PropTypes.instanceOf(Object)
 };

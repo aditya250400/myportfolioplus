@@ -1,28 +1,25 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import logoBrand from '../../assets/icons/logoBrand.png';
-import { FiHome } from 'react-icons/fi';
-import { TfiPencilAlt } from 'react-icons/tfi';
-import { MdOutlinePostAdd } from 'react-icons/md';
-import PropTypes from 'prop-types';
-import { IoIosLogOut } from 'react-icons/io';
-import { useSelector } from 'react-redux';
-import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile.png';
-import Loading from '../Loading';
-export default function Index({
-  openModalStudy,
-  openModalPortfolio,
-  isOpenModalStudyInput,
-  isOpenModalPortfolioInput,
-  logout,
-  myProfile
-}) {
-  const location = useLocation();
-  const { status } = useSelector((state) => state.auth);
+import React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import logoBrand from "../../assets/icons/logoBrand.png";
+import { FiHome } from "react-icons/fi";
+import { TfiPencilAlt } from "react-icons/tfi";
+import { MdOutlinePostAdd } from "react-icons/md";
+import PropTypes from "prop-types";
+import { IoIosLogOut } from "react-icons/io";
+import { useDispatch, useSelector } from "react-redux";
+import placeholderPhotoProfile from "../../assets/images/placeholderPhotoProfile.png";
+import { Dropdown } from "flowbite-react";
+import { HiLogout } from "react-icons/hi";
+import { FaUser } from "react-icons/fa";
+import { setModalPortfolio, setModalProgress } from "../../states/modal/modalSlice";
+import { logoutUser } from "../../states/authUser/authUserThunk";
 
-  if (status === 'loading') {
-    return <Loading />;
-  }
+export default function Index({ myProfile }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { modalProgress, modalPortfolio } = useSelector((state) => state.modal);
+  
 
   return (
     <>
@@ -34,9 +31,11 @@ export default function Index({
           <nav className="flex items-center gap-10 px-6 text-textSecondary">
             <Link
               className={`flex items-start gap-2 text-base font-semibold transition-all duration-200 ease-out hover:opacity-80 ${
-                isOpenModalStudyInput || isOpenModalPortfolioInput || location.pathname !== '/'
-                  ? ''
-                  : 'active'
+                modalProgress ||
+                modalPortfolio ||
+                location.pathname !== "/"
+                  ? ""
+                  : "active"
               }`}
               to="/"
             >
@@ -45,27 +44,32 @@ export default function Index({
             </Link>
             <button
               className={`flex gap-3 text-base font-semibold transition-all duration-200 ease-out hover:opacity-80 ${
-                isOpenModalStudyInput ? 'active' : ''
+                modalProgress ? "active" : ""
               }`}
-              onClick={() => {
-                openModalStudy(true);
-              }}
+              onClick={() => dispatch(setModalProgress(true))}
             >
-              <TfiPencilAlt title="Write Progress" className="text-2xl lg:text-xl" />
+              <TfiPencilAlt
+                title="Write Progress"
+                className="text-2xl lg:text-xl"
+              />
               <p className="hidden lg:block">Write Progress</p>
             </button>
             <button
               className={`flex gap-2 font-semibold transition-all duration-200 ease-out hover:opacity-80 ${
-                isOpenModalPortfolioInput ? 'active' : ''
+                modalPortfolio ? "active" : ""
               }`}
-              onClick={() => {
-                openModalPortfolio(true);
-              }}
+              onClick={() => dispatch(setModalPortfolio(true))}
             >
-              <MdOutlinePostAdd title="Post Portfolio" className="text-4xl lg:text-2xl" />
+              <MdOutlinePostAdd
+                title="Post Portfolio"
+                className="text-4xl lg:text-2xl"
+              />
               <p className="hidden mt-[2px] lg:block">Post Portfolio</p>
             </button>
-            <button onClick={() => logout()} className="flex items-center gap-2 cursor-pointer">
+            <button
+              onClick={() => dispatch(logoutUser({ navigate }))}
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <img
                 src={
                   myProfile === null || myProfile.photo_profile === null
@@ -81,13 +85,17 @@ export default function Index({
           </nav>
         </div>
       </header>
+
+      {/* Navbar Bottom SM breakpoint */}
       <footer className="fixed bottom-0 z-50 w-full py-1 border-t border-[#424242] bg-navbar flex sm:hidden">
         <div className="container flex items-center justify-around py-3 text-textSecondary">
           <Link
             className={`transition-all duration-200 ease-out hover:opacity-80 ${
-              isOpenModalStudyInput || isOpenModalPortfolioInput || location.pathname !== '/'
-                ? ''
-                : 'active'
+              modalProgress ||
+              modalPortfolio ||
+              location.pathname !== "/"
+                ? ""
+                : "active"
             }`}
             to="/"
           >
@@ -95,38 +103,66 @@ export default function Index({
           </Link>
           <button
             className={`flex gap-3 text-base font-semibold transition-all duration-200 ease-out hover:opacity-80 ${
-              isOpenModalStudyInput ? 'active' : ''
+              modalProgress ? "active" : ""
             }`}
-            onClick={() => {
-              openModalStudy(true);
-            }}
+            onClick={() => dispatch(setModalProgress(true))}
           >
-            <TfiPencilAlt title="Write Progress" className="text-2xl lg:text-xl" />
+            <TfiPencilAlt
+              title="Write Progress"
+              className="text-2xl lg:text-xl"
+            />
           </button>
           <button
             className={`transition-all duration-200 ease-out hover:opacity-80 ${
-              isOpenModalPortfolioInput ? 'active' : ''
+              modalPortfolio ? "active" : ""
             }`}
-            onClick={() => {
-              openModalPortfolio(true);
-            }}
+            onClick={() => dispatch(setModalPortfolio(true))}
           >
             <MdOutlinePostAdd title="Post Portfolio" className="text-3xl" />
           </button>
-          <button
-            onClick={logout}
+          <div
+            // onClick={logout}
             className="flex flex-col items-center transition-all duration-200 ease-out cursor-pointer hover:opacity-80"
           >
-            <img
-              src={
-                myProfile === null || myProfile.photo_profile === null
-                  ? placeholderPhotoProfile
-                  : myProfile.photo_profile.photo_profile
-              }
-              alt="avatar"
-              className="object-cover rounded-full w-7 h-7"
-            />
-          </button>
+            <Dropdown
+              className="bg-slate-900 transition-none text-white border-none duration-0"
+              label=""
+              dismissOnClick={false}
+              renderTrigger={() => (
+                <img
+                  src={
+                    myProfile === null || myProfile.photo_profile === null
+                      ? placeholderPhotoProfile
+                      : myProfile.photo_profile.photo_profile
+                  }
+                  alt="avatar"
+                  className="object-cover rounded-full w-7 h-7"
+                />
+              )}
+            >
+              <Dropdown.Header>
+                <span className="block text-sm text-white hover:bg-slate-800">
+                  {myProfile?.name}
+                </span>
+              </Dropdown.Header>
+              <Link to="/profile/myProfile">
+                <Dropdown.Item
+                  icon={FaUser}
+                  className="text-white  hover:bg-blue-800"
+                >
+                  My Profile
+                </Dropdown.Item>
+              </Link>
+              <Dropdown.Divider />
+              <Dropdown.Item
+                icon={HiLogout}
+                className="text-white  hover:bg-blue-800"
+                onClick={() => dispatch(logoutUser({ navigate }))}
+              >
+                Sign out
+              </Dropdown.Item>
+            </Dropdown>
+          </div>
         </div>
       </footer>
     </>
@@ -136,8 +172,8 @@ export default function Index({
 Index.propTypes = {
   openModalStudy: PropTypes.func,
   openModalPortfolio: PropTypes.func,
-  isOpenModalStudyInput: PropTypes.bool,
-  isOpenModalPortfolioInput: PropTypes.bool,
+  modalProgress: PropTypes.bool,
+  modalPortfolio: PropTypes.bool,
   logout: PropTypes.func,
-  myProfile: PropTypes.instanceOf(Object)
+  myProfile: PropTypes.instanceOf(Object),
 };

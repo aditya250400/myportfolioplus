@@ -5,8 +5,9 @@ import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile
 import PropTypes from 'prop-types';
 import iconLove from '../../assets/icons/iconLove-outlined.png';
 import { useDispatch, useSelector } from 'react-redux';
-import { upVotesPostAsync } from '../../states/posts/postThunk';
-import { upVotes, upVotesMostLikedPosts } from '../../states/posts/postsSlice';
+import { getDetailPostAsync, upVotesPostAsync } from '../../states/posts/postThunk';
+import { upVotesMostLikedPosts } from '../../states/posts/postsSlice';
+import { setPostModal } from '../../states/modal/modalSlice';
 
 export default function SmallCardPost({ post }) {
   const dispatch = useDispatch();
@@ -21,6 +22,11 @@ export default function SmallCardPost({ post }) {
       })
     );
   };
+
+  const onOpenModalPostDetail = (id) => {
+    dispatch(getDetailPostAsync({id}));
+    dispatch(setPostModal(true));
+  }
 
   return (
     <section className="w-full border rounded-xl border-[#464646]">
@@ -78,7 +84,7 @@ export default function SmallCardPost({ post }) {
             <p>{post.post_up_votes.length}</p>
           </div>
           <div className="flex items-center gap-2">
-            <button>
+            <button onClick={() => onOpenModalPostDetail(post.id)}>
               <img src={iconComment} alt="" className="w-6" />
             </button>
             <p>{post.comments.length}</p>

@@ -9,6 +9,7 @@ import portfolioReducer from './portfolios/portfoliosSlice';
 import postsReducer from './posts/postsSlice';
 import userReducer from './user/userSlice';
 import commentsReducer from './comments/commentsSlice';
+import modalReducer from './modal/modalSlice';
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     posts: postsReducer,
     skills: skillsReducer,
     comments: commentsReducer,
+    modal: modalReducer,
     loadingBar: loadingBarReducer
   }
 });

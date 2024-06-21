@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Animation404 from '../utils/NotFound.json';
 import Lottie from 'lottie-react';
 import { Button } from 'flowbite-react';

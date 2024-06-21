@@ -57,6 +57,7 @@ export default function LoginInput({ login, isLoading }) {
             <Button
               color=""
               onClick={toggleShowPassword}
+              tabIndex={-1}
               className="absolute top-[2px] right-0 rounded-none ring-0 focus:ring-0"
             >
               {showPassword ? (
@@ -71,7 +72,7 @@ export default function LoginInput({ login, isLoading }) {
           color=""
           type="submit"
           size="sm"
-          className={`mt-5 bg-fernGreen rounded-full text-textPrimary hover:opacity-90 ${!email || !password || isLoading ? 'opacity-70 hover:opacity-70' : ''}`}
+          className={`mt-5 bg-fernGreen rounded-full text-textPrimary hover:opacity-90 focus:opacity-90 ${!email || !password || isLoading ? 'opacity-70 hover:opacity-70' : ''}`}
           disabled={!email || !password || isLoading}
         >
           <span className="gap-2 text-lg font-semibold ">
