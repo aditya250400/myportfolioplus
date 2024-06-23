@@ -14,14 +14,21 @@ import { myProfileAsync } from "../states/myProfile/myProfileThunk";
 import { searchPost, setPageToOne } from "../states/posts/postsSlice";
 import { setPageUserToOne } from "../states/user/userSlice";
 import { BiEdit } from "react-icons/bi";
+import { setDeleteConfirmId } from "../states/modal/modalSlice";
+import DeleteModal from "../components/Modal/DeleteModal";
 
 export default function PortfolioDetailPage() {
   const { portfolio } = useSelector((state) => state.portfolios);
   const { myProfile } = useSelector((state) => state.myProfile);
+  const {deleteConfirmId} = useSelector((state) => state.modal)
   const { id } = useParams();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const onDeletePortfolio = (portfolioId) => {
+    dispatch(deletePortfolioAsync({id: portfolioId, navigate}))
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -29,6 +36,7 @@ export default function PortfolioDetailPage() {
     dispatch(searchPost(""));
     dispatch(setPageToOne());
     dispatch(setPageUserToOne());
+    dispatch(setDeleteConfirmId(null))
     dispatch(portfolioDetailAsync({ id }));
   }, [id]);
 
@@ -90,12 +98,18 @@ export default function PortfolioDetailPage() {
               </div>
               <div className="flex justify-end w-full ">
                 {portfolio?.user_id === myProfile?.id ? (
-                  <div className="flex gap-2 text-white">
-                    <button className="text-2xl" onClick={() => dispatch(deletePortfolioAsync({id: portfolio?.id, navigate}))}>
+                  <div className="relative flex gap-2 text-white">
+                     <button onClick={() => alert("This feature is still being create")} className='text-2xl'> <BiEdit /></button>
+                    <button className="text-2xl" onClick={() => dispatch(setDeleteConfirmId(deleteConfirmId === portfolio?.id ? null : portfolio?.id))}>
                       {" "}
                       <MdDelete />
                     </button>
-                     <button onClick={() => alert("This feature is still being create")} className='text-2xl'> <BiEdit /></button>
+
+                    <DeleteModal 
+                      id={portfolio.id} 
+                      onDeleteData={onDeletePortfolio}
+                      targetName={'portfolio'} 
+                    />
 
                   </div>
                 ) : (

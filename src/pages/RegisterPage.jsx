@@ -8,6 +8,7 @@ import { registerAsync } from '../states/register/registerThunk';
 import { ToastContainer } from 'react-toastify';
 import { searchPost, setPageToOne } from '../states/posts/postsSlice';
 import { setPageUserToOne } from '../states/user/userSlice';
+import { setDeleteConfirmId } from '../states/modal/modalSlice';
 
 export default function RegisterPage() {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ export default function RegisterPage() {
     dispatch(setPageToOne());
     dispatch(setPageUserToOne());
     dispatch(searchPost(''));
+    dispatch(setDeleteConfirmId(null))
   }, []);
 
   return (

@@ -9,6 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { searchPost, setPageToOne } from '../states/posts/postsSlice';
 import { setPageUserToOne } from '../states/user/userSlice';
+import { setDeleteConfirmId } from '../states/modal/modalSlice';
 
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     dispatch(searchPost(''));
+    dispatch(setDeleteConfirmId(null))
     dispatch(setPageUserToOne());
     dispatch(setPageToOne());
   }, []);

@@ -6,6 +6,7 @@ import {
   getMyPostAsync,
   mostLikedPostsAsync,
   postsAsync,
+  updatePostAsync,
   upVotesPostAsync
 } from './postThunk';
 import { logoutUser } from '../authUser/authUserThunk';
@@ -27,6 +28,7 @@ const initialState = {
   loadingPaginate: false,
   loadingLikedPosts: false,
   loadingCurrentPost: false,
+  editPostStatus: false,
 };
 
 const postsSlice = createSlice({
@@ -44,6 +46,9 @@ const postsSlice = createSlice({
     },
     setSelectedPost: (state, action) => {
       state.selectedPost = action.payload;
+    },
+    setEditPostStatus: (state, action) => {
+      state.editPostStatus = action.payload;
     },
     upVotes: (state, action) => {
       const { user_id, post_id } = action.payload;
@@ -158,7 +163,7 @@ const postsSlice = createSlice({
         state.searchInput = '';
         state.selectedPost = 'All Posts';
       })
-      .addCase(createPostAsync.fulfilled, (state, action) => {
+      .addCase(createPostAsync.fulfilled, (state) => {
         state.status = 'succeeded';
         state.loadingWhenCreatingPost = false;
         state.error = null;
@@ -167,6 +172,25 @@ const postsSlice = createSlice({
         state.status = 'rejected';
         state.loadingWhenCreatingPost = false;
       })
+      
+      .addCase(updatePostAsync.pending, (state) => {
+        state.status = 'loading';
+        state.current_page = 1;
+        state.page = 1;
+        state.loadingWhenCreatingPost = true;
+        state.searchInput = '';
+        state.selectedPost = 'All Posts';
+      })
+      .addCase(updatePostAsync.fulfilled, (state) => {
+        state.status = 'succeeded';
+        state.loadingWhenCreatingPost = false;
+        state.error = null;
+      })
+      .addCase(updatePostAsync.rejected, (state) => {
+        state.status = 'rejected';
+        state.loadingWhenCreatingPost = false;
+      })
+      
       .addCase(upVotesPostAsync.pending, (state) => {
         state.status = 'pending';
         state.votes = null;
@@ -225,6 +249,7 @@ export const {
   setPageToOne,
   upVotes,
   upVotesMostLikedPosts,
-  setCurrentPostToNull
+  setCurrentPostToNull,
+  setEditPostStatus,
 } = postsSlice.actions;
 export default postsSlice.reducer;

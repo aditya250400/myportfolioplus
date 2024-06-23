@@ -3,7 +3,7 @@ import { hideLoading, showLoading } from 'react-redux-loading-bar';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../api/axiosConfig';
 import { myProfileAsync } from '../myProfile/myProfileThunk';
-import { setModalPortfolio } from '../modal/modalSlice';
+import { setDeleteConfirmId, setModalPortfolio } from '../modal/modalSlice';
 import { getMostActiveUsers } from '../user/userThunk';
 
 export const portfoliosAsync = createAsyncThunk(
@@ -31,6 +31,7 @@ export const deletePortfolioAsync = createAsyncThunk(
       const response = await axiosInstance.delete(`/api/portfolios/${id}`);
       setTimeout(() => toast.success('Portfolio Deleted!'), 500);
       navigate(-1);
+      dispatch(setDeleteConfirmId(null));
     } catch (error) {
       toast.error(error.response.data);
       return rejectWithValue({ error: error.response.data });

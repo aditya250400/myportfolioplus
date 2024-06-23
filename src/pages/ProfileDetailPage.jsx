@@ -19,6 +19,7 @@ import SkillsUserProfile from '../components/Card/SkillsUserProfile';
 import PortfolioUser from '../components/Card/PortfolioUser';
 import { searchPost, setPageToOne } from '../states/posts/postsSlice';
 import { setPageUserToOne } from '../states/user/userSlice';
+import { setDeleteConfirmId } from '../states/modal/modalSlice';
 
 export default function ProfileDetailPage() {
   const { myProfile } = useSelector((state) => state.myProfile);
@@ -58,6 +59,7 @@ export default function ProfileDetailPage() {
     dispatch(setPageUserToOne());
     dispatch(getMyPostAsync());
     dispatch(searchPost(''));
+    dispatch(setDeleteConfirmId(null))
   }, []);
   return (
     <>

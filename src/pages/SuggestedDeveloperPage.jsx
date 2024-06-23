@@ -11,6 +11,7 @@ import { setPage, setPageUserToOne } from "../states/user/userSlice";
 import WriteProgressInputModal from "../components/Modal/WriteProgressInputModal";
 import PortfolioInputModal from "../components/Modal/PortfolioInputModal";
 import { ToastContainer } from "react-toastify";
+import { setDeleteConfirmId } from "../states/modal/modalSlice";
 
 export default function SuggestedDeveloperPage() {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ export default function SuggestedDeveloperPage() {
     dispatch(setPageToOne());
     dispatch(setPageUserToOne());
     dispatch(searchPost(""));
+    dispatch(setDeleteConfirmId(null))
     dispatch(getMostActiveUsers({ page: 1 }));
     window.scrollTo(0, 0);
   }, []);

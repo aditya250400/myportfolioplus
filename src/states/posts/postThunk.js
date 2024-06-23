@@ -3,7 +3,7 @@ import { hideLoading, showLoading } from 'react-redux-loading-bar';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../api/axiosConfig';
 import { myProfileAsync } from '../myProfile/myProfileThunk';
-import { setModalProgress } from '../modal/modalSlice';
+import { setDeleteConfirmId, setModalProgress } from '../modal/modalSlice';
 
 export const postsAsync = createAsyncThunk(
   'auth/posts',
@@ -32,6 +32,7 @@ export const deletePostAsync = createAsyncThunk(
     try {
       const response = await axiosInstance.delete(`/api/posts/${id}`);
       dispatch(getMyPostAsync({page: 1, searchInput: ''}));
+      dispatch(setDeleteConfirmId(null));
       setTimeout(() => toast.success('Post Deleted!'));
     } catch (error) {
       toast.error(error.response.data);
@@ -102,7 +103,9 @@ export const createPostAsync = createAsyncThunk(
     try {
       const formData = new FormData();
       formData.append('content', content);
-      formData.append('image', image);
+      if(image !== null) {
+        formData.append('image', image);
+      }
 
       const response = await axiosInstance.post('/api/posts', formData, {
         headers: {
@@ -114,6 +117,37 @@ export const createPostAsync = createAsyncThunk(
       dispatch(myProfileAsync());
       dispatch(setModalProgress(false));
       dispatch(navigate('/'));
+    } catch (error) {
+      toast.error(error.response.data);
+      return rejectWithValue({ error: error.response.data });
+    }
+  }
+);
+export const updatePostAsync = createAsyncThunk(
+  'auth/updatePost',
+  async ({ content, image, id, removeImage }, { dispatch, rejectWithValue }) => {
+    dispatch(showLoading());
+
+    try {
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('_method', 'PUT');
+      if(image !== null) {
+        formData.append('image', image);
+      }
+      if(removeImage) {
+        formData.append('remove_image', removeImage);
+      }
+
+      const response = await axiosInstance.post(`/api/posts/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setTimeout(() => toast.success(response.data.message) , 500);
+      dispatch(getMyPostAsync({page: 1, searchInput: ""}));
+      dispatch(myProfileAsync());
+      dispatch(setModalProgress(false));
     } catch (error) {
       toast.error(error.response.data);
       return rejectWithValue({ error: error.response.data });

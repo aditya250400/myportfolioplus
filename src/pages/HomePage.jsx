@@ -32,6 +32,7 @@ import ButtonPaginate from "../components/Card/ButtonPaginate";
 import PostLoading from "../components/Loading/PostLoading";
 import ProfileHomePageLoading from "../components/Loading/ProfileHomePageLoading";
 import { setPageUserToOne } from "../states/user/userSlice";
+import { setDeleteConfirmId } from "../states/modal/modalSlice";
 
 export default function HomePage() {
   const dispatch = useDispatch();
@@ -89,6 +90,7 @@ export default function HomePage() {
     dispatch(setSelectedPost('All Posts'));
     dispatch(postsAsync({ searchInput: "", page: 1 }));
     dispatch(getMostActiveUsers({ page: 1 }));
+    dispatch(setDeleteConfirmId(null))
   }, []);
 
   useEffect(() => {

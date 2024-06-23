@@ -19,6 +19,7 @@ import { getMyPostAsync } from '../states/posts/postThunk';
 import { searchPost, setPage, setPageToOne } from '../states/posts/postsSlice';
 import ButtonPaginate from '../components/Card/ButtonPaginate';
 import { setPageUserToOne } from '../states/user/userSlice';
+import { setDeleteConfirmId } from '../states/modal/modalSlice';
 
 export default function ProfilePage() {
   const { myProfile } = useSelector((state) => state.myProfile);
@@ -70,6 +71,7 @@ export default function ProfilePage() {
     dispatch(setPageUserToOne());
     dispatch(getMyPostAsync());
     dispatch(searchPost(''));
+    dispatch(setDeleteConfirmId(null))
   }, [dispatch]);
 
   return (

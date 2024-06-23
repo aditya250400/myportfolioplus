@@ -3,7 +3,7 @@ import iconLove from '../../assets/icons/iconLove-outlined.png';
 import iconLoveFilled from '../../assets/icons/iconLove-filled.png';
 import iconComment from '../../assets/icons/messages.png';
 import PropTypes from 'prop-types';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useExpand } from '../../hooks/useExpand';
 import { formattedDate, formattedTime } from '../../utils';
 import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile.png';
@@ -12,7 +12,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { MdDelete } from "react-icons/md";
 import { deletePostAsync, getDetailPostAsync } from '../../states/posts/postThunk';
 import { BiEdit } from "react-icons/bi";
-import { setPostModal } from '../../states/modal/modalSlice';
+import { setDeleteConfirmId, setModalProgress, setPostModal } from '../../states/modal/modalSlice';
+import DeleteModal from '../Modal/DeleteModal';
+import { setEditPostStatus } from '../../states/posts/postsSlice';
 export default function Post({
   id,
   content,
@@ -28,6 +30,7 @@ export default function Post({
   const desc = { __html: content };
   const { myProfile } = useSelector((state) => state.myProfile);
   const dispatch = useDispatch();
+  const { deleteConfirmId } = useSelector((state) =>state.modal);
 
   const handleToggleExpanded = () => {
       toggleExpanded(!isExpanded);
@@ -36,6 +39,11 @@ export default function Post({
     const handlePostDetail = (postId) => {
       dispatch(getDetailPostAsync({id: postId}));
       dispatch(setPostModal(true));
+    }
+    const handleEditPost = (postId) => {
+      dispatch(getDetailPostAsync({id: postId}));
+      dispatch(setModalProgress(true));
+      dispatch(setEditPostStatus(true));
     }
   
 
@@ -178,9 +186,11 @@ export default function Post({
         <div>
           {
             location.pathname === "/profile/myProfile" ? (
-              <div className='flex gap-2'>
-                <button onClick={() => alert("This feature is still being create")} className='text-2xl'> <BiEdit /></button>
-                <button onClick={() => onDeletePost(id)} className='text-2xl'> <MdDelete /></button>
+              <div className='relative flex gap-2'>
+                <button onClick={() => handleEditPost(id)} className='text-2xl'> <BiEdit /></button>
+                <button onClick={() => dispatch(setDeleteConfirmId(deleteConfirmId === id ? null : id))} className='text-2xl'> <MdDelete /></button>
+
+               <DeleteModal id={id} targetName={"post"} onDeleteData={onDeletePost} />
               </div>
             ) : null
           }

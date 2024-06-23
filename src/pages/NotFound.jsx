@@ -5,12 +5,14 @@ import { Button } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import { searchPost, setPageToOne } from '../states/posts/postsSlice';
 import { useDispatch } from 'react-redux';
+import { setDeleteConfirmId } from '../states/modal/modalSlice';
 
 export default function NotFound() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(searchPost(''));
     dispatch(setPageToOne());
+    dispatch(setDeleteConfirmId(null))
   }, []);
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-2">
