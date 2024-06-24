@@ -128,7 +128,7 @@ export default function Post({
         <div className="flex gap-2 px-2 my-3 sm:px-0">
           <p className="text-[12px] font-medium text-[#A9A9A9]">{formattedDate(created_at)}</p>
           <p className="text-[12px] font-medium text-[#7A7A7A]">•</p>
-          <p className="text-[12px] font-medium text-[#A9A9A9]">{formattedTime(updated_at)}</p>
+          <p className="text-[12px] font-medium text-[#A9A9A9]">{formattedTime(created_at)}</p>
         </div>
         <div
           dangerouslySetInnerHTML={desc}

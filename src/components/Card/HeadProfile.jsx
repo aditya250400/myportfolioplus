@@ -92,7 +92,7 @@ export default function HeadProfile({ myProfile }) {
               : myProfile.background_photo.background_photo
           }
           alt="bg card"
-          className={`${loadingBackground ? 'animate-pulse' : ''} object-cover w-full h-40 sm:h-56 sm:rounded-t-xl`}
+          className={`${loadingBackground ? 'animate-pulse' : ''} object-cover w-full h-56 sm:rounded-t-xl`}
         />
         <label
           htmlFor="backgroundImage"

@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Button, Label, Modal } from 'flowbite-react';
 import { Select } from 'antd';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createMyBiodataAsync, updateMyBiodataAsync } from '../../states/myProfile/myProfileThunk';
+import { ImSpinner2 } from 'react-icons/im';
 
 export default function EditSkillsProfileModal(props) {
   const dispatch = useDispatch();
   const { skills, myProfile, openModal, setOpenModal } = props;
+  const {loadingWhenCreatingBiodata} = useSelector((state) => state.myProfile);
 
   const [name, setName] = useState(myProfile.name);
 
@@ -132,8 +134,14 @@ export default function EditSkillsProfileModal(props) {
               size="sm"
               className="w-20 mt-5 rounded-full bg-ufoGreen bg-opacity-80 text-textPrimary hover:bg-opacity-70"
               onClick={myProfile.biodata === null ? onSubmitBiodata : onEditBiodata}
+              disabled={loadingWhenCreatingBiodata ? true : false}
+
             >
-              Save
+              {loadingWhenCreatingBiodata ? (
+              <ImSpinner2 className="w-6 h-6 text-white animate-spin" />
+            ) : (
+              "Save"
+            )}
             </Button>
           </div>
         </Modal.Body>

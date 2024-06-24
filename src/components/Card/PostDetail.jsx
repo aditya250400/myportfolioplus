@@ -1,17 +1,17 @@
-import React, { useRef, useState } from 'react';
-import iconLove from '../../assets/icons/iconLove-outlined.png';
-import iconLoveFilled from '../../assets/icons/iconLove-filled.png';
-import iconComment from '../../assets/icons/messages.png';
-import { IoIosSend } from 'react-icons/io';
-import PropTypes from 'prop-types';
-import 'animate.css';
-import { formattedDate, formattedTime } from '../../utils';
-import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile.png';
-import { useDispatch } from 'react-redux';
-import { createCommentAsync } from '../../states/comments/commentsThunk';
-import { setCurrentPostToNull } from '../../states/posts/postsSlice';
-import { IoClose } from 'react-icons/io5';
-import { setPostModal } from '../../states/modal/modalSlice';
+import React, { useRef, useState } from "react";
+import iconLove from "../../assets/icons/iconLove-outlined.png";
+import iconLoveFilled from "../../assets/icons/iconLove-filled.png";
+import iconComment from "../../assets/icons/messages.png";
+import { IoIosSend } from "react-icons/io";
+import PropTypes from "prop-types";
+import "animate.css";
+import { formattedDate, formattedTime } from "../../utils";
+import placeholderPhotoProfile from "../../assets/images/placeholderPhotoProfile.png";
+import { useDispatch } from "react-redux";
+import { createCommentAsync } from "../../states/comments/commentsThunk";
+import { setCurrentPostToNull } from "../../states/posts/postsSlice";
+import { IoClose } from "react-icons/io5";
+import { setPostModal } from "../../states/modal/modalSlice";
 
 export default function PostDetail({
   id,
@@ -22,9 +22,9 @@ export default function PostDetail({
   updated_at,
   comments,
   post_up_votes,
-  myProfile
+  myProfile,
 }) {
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const commentInputRef = useRef(null);
   const desc = { __html: content };
   const dispatch = useDispatch();
@@ -42,39 +42,67 @@ export default function PostDetail({
   };
 
   const onCloseModal = () => {
-    dispatch(setPostModal(false))
-    dispatch(setCurrentPostToNull())
-    setComment('');
-  }
-
+    dispatch(setPostModal(false));
+    dispatch(setCurrentPostToNull());
+    setComment("");
+  };
 
   return (
     <section
-      className={`px-3 md:px-0 container flex h-[40rem] ${comments > 0 ? 'h-[40rem]' : 'h-fit'} w-96  ${image ? 'sm:w-[70rem]' : ''}  rounded-md text-textPrimary bg-eerieBlack`}
+      className={`px-3 md:px-0 container flex h-[40rem] ${
+        comments > 0 ? "h-[40rem]" : "h-fit"
+      } w-96  ${
+        image ? "sm:w-[70rem]" : ""
+      }  rounded-md text-textPrimary bg-eerieBlack `}
     >
       <div className="flex min-w-full">
-        <div className={`items-baseline w-full h-full`}>
-          <img src={image} alt="post" className="object-contain w-full h-full px-2"/>
-        </div>
-        <div className="relative flex flex-col items-center w-full md:max-w-[25rem]">
-        
-          <div className="absolute left-0 z-20 flex items-center w-full gap-3 px-4 py-2">
-          <button className="absolute right-2 top-1 md:right-0 md:top-0" onClick={onCloseModal}>
-              <IoClose className="text-3xl text-textSecondary" />
-          </button>
+        {image !== null ? (
+          <div className={`items-baseline w-full h-full`}>
             <img
-              src={user?.photo_profile?.photo_profile || placeholderPhotoProfile}
+              src={image}
+              alt="post"
+              className="object-contain w-full h-full md:px-2"
+            />
+          </div>
+        ) : null}
+        <div className="relative flex flex-col items-center w-full ">
+          {/* button close modal */}
+          <div className="absolute left-0 z-20 flex items-center w-full gap-3 px-1 md:px-4 py-2">
+            <button
+              className="absolute right-2 top-1 md:right-0 md:top-0"
+              onClick={onCloseModal}
+            >
+              <IoClose className="text-3xl text-textSecondary" />
+            </button>
+            <img
+              src={
+                user?.photo_profile?.photo_profile || placeholderPhotoProfile
+              }
               alt="img post"
               className="object-cover w-8 h-8 rounded-full"
             />
             <div className="flex flex-col">
-              <p className="text-sm font-medium text-textPrimary">{user?.name}</p>
-              <p className="text-[10px] font-medium text-textSecondary">{user?.biodata?.role}</p>
+              <p className="text-sm font-medium text-textPrimary">
+                {user?.name}
+              </p>
+              <p className="text-[10px] font-medium text-textSecondary">
+                {user?.biodata?.role}
+              </p>
             </div>
           </div>
-          <div className="px-4 py-2 overflow-auto border-y border-[#262626] h-[25rem] mt-12">
-            <div dangerouslySetInnerHTML={desc} className="text-[15px] text-textPrimary whitespace-pre-wrap" />
-          <img src={image} alt="post" className="md:hidden object-contain w-full mt-1"/>
+          {/* content section */}
+          <div className="w-full px-1 md:px-4 py-2 overflow-auto border-y border-[#262626] h-[25rem] mt-12">
+            <div
+              dangerouslySetInnerHTML={desc}
+              className="text-[15px] text-textPrimary whitespace-pre-wrap"
+            />
+            {image !== null ? (
+              <img
+                src={image}
+                alt="post"
+                className="md:hidden object-contain w-full mt-1"
+              />
+            ) : null}
             <div className="flex gap-2 mt-2 text-[10px] font-medium">
               <p className="text-[#A9A9A9]">{formattedDate(created_at)}</p>
               <p className="text-[#7A7A7A]">•</p>
@@ -84,12 +112,17 @@ export default function PostDetail({
               {comments?.length} comments
             </p>
             <div className="h-[2px] mt-3 mb-5 bg-[#262626]" />
+
+            {/* comment data section */}
             <div className="flex flex-col gap-5">
               {comments.length > 0 ? (
                 comments.map((comment) => (
                   <div key={comment.id} className="flex gap-1">
                     <img
-                      src={comment?.user?.photo_profile?.photo_profile || placeholderPhotoProfile}
+                      src={
+                        comment?.user?.photo_profile?.photo_profile ||
+                        placeholderPhotoProfile
+                      }
                       alt="img post"
                       className="object-cover w-8 h-8 rounded-full"
                     />
@@ -109,7 +142,9 @@ export default function PostDetail({
                             {comment.user.biodata?.role}
                           </p>
                         </div>
-                        <p className="text-xs whitespace-pre-wrap">{comment.content}</p>
+                        <p className="text-xs whitespace-pre-wrap">
+                          {comment.content}
+                        </p>
                       </div>
                       <div className="flex gap-1 my-2 text-xs text-textPrimary">
                         <button>Like</button>
@@ -124,28 +159,38 @@ export default function PostDetail({
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-textSecondary">There are no comments on this post.</p>
+                <p className="text-sm text-textSecondary">
+                  There are no comments on this post.
+                </p>
               )}
             </div>
           </div>
+
+          {/* Like and comment button section */}
           <div className="flex flex-col gap-1 px-4 pb-2 text-xs">
             <div className="flex gap-5 my-3 text-textPrimary">
               <div className="flex items-center gap-1">
                 <button
                   className={
-                    post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
-                      ? 'hover:cursor-not-allowed'
-                      : ''
+                    post_up_votes.find(
+                      (vote) => myProfile && vote.user_id === myProfile.id
+                    )
+                      ? "hover:cursor-not-allowed"
+                      : ""
                   }
                   disabled={
-                    post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
+                    post_up_votes.find(
+                      (vote) => myProfile && vote.user_id === myProfile.id
+                    )
                       ? true
                       : false
                   }
                 >
                   <img
                     src={
-                      post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
+                      post_up_votes.find(
+                        (vote) => myProfile && vote.user_id === myProfile.id
+                      )
                         ? iconLoveFilled
                         : iconLove
                     }
@@ -175,11 +220,13 @@ export default function PostDetail({
               <div className="flex gap-2">
                 <textarea
                   ref={commentInputRef}
-                  className={`py-2 px-3 w-[17rem] ${image ? 'md:w-72' : 'md:w-64'} text-[10px] bg-searchInput border border-[#262626] rounded-md text-textPrimary overflow-auto h-10 cursor-text text-sm  placeholder:text-textPrimary focus:border-[#2d2d2d] focus:outline focus:ring-0`}
+                  className={`py-2 px-3 w-[17rem] ${
+                    image ? "md:w-72" : "md:w-64"
+                  } text-[10px] bg-searchInput border border-[#262626] rounded-md text-textPrimary overflow-auto h-10 cursor-text text-sm  placeholder:text-textPrimary focus:border-[#2d2d2d] focus:outline focus:ring-0`}
                   onChange={onCommentChangeHandler}
                   value={comment}
-                  ></textarea>
-                <button 
+                ></textarea>
+                <button
                   type="submit"
                   onClick={() => onClickCommentHandler()}
                   className="bg-searchInput transition-all duration-300 hover:text-ufoGreen right-0 px-3 me-10 w-auto rounded-md py-2 h-10 text-lg font-medium hover:shadow text-[#A9A9A9] hover:bg-opacity-70"
@@ -204,5 +251,5 @@ PostDetail.propTypes = {
   updated_at: PropTypes.string.isRequired,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   post_up_votes: PropTypes.arrayOf(PropTypes.object).isRequired,
-  myProfile: PropTypes.instanceOf(Object).isRequired
+  myProfile: PropTypes.instanceOf(Object).isRequired,
 };

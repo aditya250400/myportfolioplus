@@ -1,46 +1,71 @@
-import React, { useState } from 'react';
-import { Button, Label, Modal, TextInput } from 'flowbite-react';
-import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
-import { createMyBiodataAsync, updateMyBiodataAsync } from '../../states/myProfile/myProfileThunk';
+import React, { useState } from "react";
+import { Button, Label, Modal, TextInput } from "flowbite-react";
+import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createMyBiodataAsync,
+  updateMyBiodataAsync,
+} from "../../states/myProfile/myProfileThunk";
+import { ImSpinner2 } from "react-icons/im";
 
-export default function EditHeadProfileModal({ myProfile, openModal, setOpenModal }) {
+export default function EditHeadProfileModal({
+  myProfile,
+  openModal,
+  setOpenModal,
+}) {
   const dispatch = useDispatch();
+  const { loadingWhenCreatingBiodata } = useSelector(
+    (state) => state.myProfile
+  );
   const [name, setName] = useState(myProfile.name);
   const [role, setRole] = useState(
-    myProfile === null || myProfile.biodata === null || myProfile.biodata.role === null
-      ? ''
+    myProfile === null ||
+      myProfile.biodata === null ||
+      myProfile.biodata.role === null
+      ? ""
       : myProfile.biodata.role
   );
   const [headline, setHeadline] = useState(
-    myProfile === null || myProfile.biodata === null || myProfile.biodata.headline === null
-      ? ''
+    myProfile === null ||
+      myProfile.biodata === null ||
+      myProfile.biodata.headline === null
+      ? ""
       : myProfile.biodata.headline
   );
   const [location, setLocation] = useState(
-    myProfile === null || myProfile.biodata === null || myProfile.biodata.location === null
-      ? ''
+    myProfile === null ||
+      myProfile.biodata === null ||
+      myProfile.biodata.location === null
+      ? ""
       : myProfile.biodata.location
   );
   const [skills, setSkills] = useState(
-    myProfile === null || myProfile.biodata === null || myProfile.biodata.skills.length < 1
+    myProfile === null ||
+      myProfile.biodata === null ||
+      myProfile.biodata.skills.length < 1
       ? []
       : myProfile.biodata.skills
   );
   const [linkedIn, setLinkedIn] = useState(
-    myProfile === null || myProfile.biodata === null || myProfile.biodata.linkedIn === null
+    myProfile === null ||
+      myProfile.biodata === null ||
+      myProfile.biodata.linkedIn === null
       ? null
       : myProfile.biodata.linkedIn
   );
 
   const [website, setWebsite] = useState(
-    myProfile === null || myProfile.biodata === null || myProfile.biodata.website === null
+    myProfile === null ||
+      myProfile.biodata === null ||
+      myProfile.biodata.website === null
       ? null
       : myProfile.biodata.website
   );
 
   const [about, setAbout] = useState(
-    myProfile === null || myProfile.biodata === null || myProfile.biodata.about === null
+    myProfile === null ||
+      myProfile.biodata === null ||
+      myProfile.biodata.about === null
       ? null
       : myProfile.biodata.about
   );
@@ -57,7 +82,7 @@ export default function EditHeadProfileModal({ myProfile, openModal, setOpenModa
         website,
         about,
         email: myProfile.email,
-        setOpenModal
+        setOpenModal,
       })
     );
   };
@@ -75,7 +100,7 @@ export default function EditHeadProfileModal({ myProfile, openModal, setOpenModa
         about,
         email: myProfile.email,
         id: myProfile.biodata.id,
-        setOpenModal
+        setOpenModal,
       })
     );
   };
@@ -95,7 +120,11 @@ export default function EditHeadProfileModal({ myProfile, openModal, setOpenModa
           <div className="p-6 space-y-6 bg-eerieBlack">
             <div>
               <div className="mb-2 blocks">
-                <Label className="text-textPrimary" htmlFor="name" value="Your Name" />
+                <Label
+                  className="text-textPrimary"
+                  htmlFor="name"
+                  value="Your Name"
+                />
               </div>
               <TextInput
                 id="name"
@@ -107,7 +136,11 @@ export default function EditHeadProfileModal({ myProfile, openModal, setOpenModa
             </div>
             <div>
               <div className="mb-2 blocks">
-                <Label className="text-textPrimary" htmlFor="role" value="Role" />
+                <Label
+                  className="text-textPrimary"
+                  htmlFor="role"
+                  value="Role"
+                />
               </div>
               <TextInput
                 id="role"
@@ -119,7 +152,11 @@ export default function EditHeadProfileModal({ myProfile, openModal, setOpenModa
             </div>
             <div>
               <div className="mb-2 blocks">
-                <Label className="text-textPrimary" htmlFor="headline" value="Headline" />
+                <Label
+                  className="text-textPrimary"
+                  htmlFor="headline"
+                  value="Headline"
+                />
               </div>
               <TextInput
                 id="headline"
@@ -131,7 +168,11 @@ export default function EditHeadProfileModal({ myProfile, openModal, setOpenModa
             </div>
             <div>
               <div className="mb-2 blocks">
-                <Label className="text-textPrimary" htmlFor="location" value="Location" />
+                <Label
+                  className="text-textPrimary"
+                  htmlFor="location"
+                  value="Location"
+                />
               </div>
               <TextInput
                 id="location"
@@ -148,9 +189,16 @@ export default function EditHeadProfileModal({ myProfile, openModal, setOpenModa
             color=""
             size="sm"
             className="w-20 rounded-full bg-ufoGreen bg-opacity-80 text-textPrimary hover:bg-opacity-70"
-            onClick={myProfile.biodata === null ? onSubmitBiodata : onEditBiodata}
+            onClick={
+              myProfile.biodata === null ? onSubmitBiodata : onEditBiodata
+            }
+            disabled={loadingWhenCreatingBiodata ? true : false}
           >
-            Save
+            {loadingWhenCreatingBiodata ? (
+              <ImSpinner2 className="w-6 h-6 text-white animate-spin" />
+            ) : (
+              "Save"
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -161,5 +209,5 @@ export default function EditHeadProfileModal({ myProfile, openModal, setOpenModa
 EditHeadProfileModal.propTypes = {
   myProfile: PropTypes.instanceOf(Object),
   openModal: PropTypes.bool,
-  setOpenModal: PropTypes.func
+  setOpenModal: PropTypes.func,
 };
