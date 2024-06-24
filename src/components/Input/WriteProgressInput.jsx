@@ -121,11 +121,11 @@ export default function WriteProgressInput({ myProfile }) {
             <IoClose className="text-xl text-textSecondary" />
           </button>
         </div>
-        <div className="mt-5 mb-3 rounded-lg bg-gray-700">
-          <Textarea
+        <div className="mt-5 mb-3 rounded-lg overflow-hidden bg-searchInput">
+          <textarea
             ref={inputRef}
             type="text"
-            className="p-5 overflow-auto border-none h-48 bg-searchInput resize-none focus:outline-none border border-white focus:ring-0 placeholder:text-[#A9A9A9]"
+            className="p-5 overflow-auto border-none h-48 bg-searchInput w-full  resize-none focus:outline-none border border-white focus:ring-0 placeholder:text-[#A9A9A9]"
             value={content}
             onChange={onContentChangeHandler}
             placeholder="Start typing what's on your mind"
@@ -136,7 +136,7 @@ export default function WriteProgressInput({ myProfile }) {
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    className="top-0 right-0 p-1 text-2xl transition-all duration-200 ease-out rounded-full cursor-pointer bg-gray-900 mb-2"
+                    className="top-0 right-0 p-1 text-2xl transition-all duration-200 ease-out rounded-full cursor-pointer bg-gray-900 hover:bg-gray-800 mb-2"
                     onClick={onHandleRemoveImage}
                   >
                     <IoClose className="text-xl text-textSecondary" />
@@ -144,13 +144,13 @@ export default function WriteProgressInput({ myProfile }) {
                 </div>
                 <img
                   src={thumbnail}
-                  className="object-fill  w-full rounded-xl "
+                  className="object-fill w-full rounded-xl "
                 />
               </div>
             </div>
           ) : (
             <div className="p-2">
-              <label htmlFor="image-upload" className="text-3xl">
+              <label htmlFor="image-upload" className="text-3xl hover:cursor-pointer">
                 <FaRegImage />
               </label>
               <p className="mt-2 text-xs font-medium text-[#A9A9A9]">

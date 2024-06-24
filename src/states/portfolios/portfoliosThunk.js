@@ -5,6 +5,7 @@ import axiosInstance from '../../api/axiosConfig';
 import { myProfileAsync } from '../myProfile/myProfileThunk';
 import { setDeleteConfirmId, setModalPortfolio } from '../modal/modalSlice';
 import { getMostActiveUsers } from '../user/userThunk';
+import { setEditPortfolioStatus } from './portfoliosSlice';
 
 export const portfoliosAsync = createAsyncThunk(
   'auth/portfolios',
@@ -80,6 +81,40 @@ export const createPortfolioAsync = createAsyncThunk(
       dispatch(setModalPortfolio(false));
       dispatch(getMostActiveUsers({page: 1}));
       setTimeout(() => toast.success('Portfolio Successfull Created!\nCheck Your Profile'), 500);
+      return response.data;
+    } catch (error) {
+      toast.error(error.response.data);
+      return rejectWithValue({ error: error.response.data });
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+);
+export const updatePortfolioAsync = createAsyncThunk(
+  'auth/updatePortfolio',
+  async ({ title, description, image, link, id }, { dispatch, rejectWithValue }) => {
+    dispatch(showLoading());
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('link', link);
+      formData.append('_method', 'PUT');
+      if(image !== null) {
+        formData.append('image', image);
+      }
+
+      const response = await axiosInstance.post(`/api/portfolios/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      dispatch(portfolioDetailAsync({id}));
+      dispatch(myProfileAsync());
+      dispatch(setModalPortfolio(false));
+      dispatch(setEditPortfolioStatus(false));
+      setTimeout(() => toast.success('Portfolio Successfull Updated!'), 500);
       return response.data;
     } catch (error) {
       toast.error(error.response.data);
