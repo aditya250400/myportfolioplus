@@ -21,6 +21,7 @@ export default function WriteProgressInput({ myProfile }) {
   const [fileNotification, setFileNotification] = useState("");
   const [thumbnail, setThumbnail] = useState(currentPost?.image || null);
   const { modalProgress } = useSelector((state) => state.modal);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const inputRef = useRef(null);
@@ -60,6 +61,15 @@ export default function WriteProgressInput({ myProfile }) {
     dispatch(setModalProgress(false));
     dispatch(setEditPostStatus(false));
     dispatch(setCurrentPostToNull());
+  }
+
+  const onHandleRemoveImage = () => {
+    setThumbnail(null);
+    setFile(null);
+    setRemoveImage(editPostStatus ? true : false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   }
 
   useEffect(() => {
@@ -127,11 +137,7 @@ export default function WriteProgressInput({ myProfile }) {
                   <button
                     type="button"
                     className="top-0 right-0 p-1 text-2xl transition-all duration-200 ease-out rounded-full cursor-pointer bg-gray-900 mb-2"
-                    onClick={() => {
-                      setThumbnail(null);
-                      setFile(null);
-                      setRemoveImage(editPostStatus ? true : false);
-                    }}
+                    onClick={onHandleRemoveImage}
                   >
                     <IoClose className="text-xl text-textSecondary" />
                   </button>
@@ -168,6 +174,7 @@ export default function WriteProgressInput({ myProfile }) {
               type="file"
               hidden
               accept="image/*"
+              ref={fileInputRef}
               id="image-upload"
               onChange={onFileChangeHandler}
               className="bg-searchInput"
