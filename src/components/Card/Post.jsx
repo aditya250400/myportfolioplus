@@ -155,16 +155,6 @@ export default function Post({
             <button
               type="button"
               onClick={() => handleVotesClick(id)}
-              className={
-                post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
-                  ? 'hover:cursor-not-allowed'
-                  : ''
-              }
-              disabled={
-                post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
-                  ? true
-                  : false
-              }
             >
               <img
                 src={

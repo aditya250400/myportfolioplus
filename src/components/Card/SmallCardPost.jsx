@@ -5,7 +5,7 @@ import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile
 import PropTypes from 'prop-types';
 import iconLove from '../../assets/icons/iconLove-outlined.png';
 import { useDispatch, useSelector } from 'react-redux';
-import { getDetailPostAsync, upVotesPostAsync } from '../../states/posts/postThunk';
+import { getDetailPostAsync, mostLikedPostsAsync, upVotesPostAsync } from '../../states/posts/postThunk';
 import { upVotesMostLikedPosts } from '../../states/posts/postsSlice';
 import { setPostModal } from '../../states/modal/modalSlice';
 
@@ -14,13 +14,13 @@ export default function SmallCardPost({ post }) {
   const { myProfile } = useSelector((state) => state.myProfile);
   const handleVotesClick = (postId) => {
     dispatch(upVotesPostAsync({ id: postId }));
-
-    dispatch(
-      upVotesMostLikedPosts({
-        user_id: myProfile.id,
-        post_id: postId
-      })
-    );
+    dispatch(mostLikedPostsAsync());
+    // dispatch(
+    //   upVotesMostLikedPosts({
+    //     user_id: myProfile.id,
+    //     post_id: postId
+    //   })
+    // );
   };
 
   const onOpenModalPostDetail = (id) => {
@@ -60,16 +60,6 @@ export default function SmallCardPost({ post }) {
             <button
               type="button"
               onClick={() => handleVotesClick(post.id)}
-              className={
-                post.post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
-                  ? 'hover:cursor-not-allowed'
-                  : ''
-              }
-              disabled={
-                post.post_up_votes.find((vote) => myProfile && vote.user_id === myProfile.id)
-                  ? true
-                  : false
-              }
             >
               <img
                 src={

@@ -11,14 +11,14 @@ import { skillsAsync } from '../states/skills/skillsThunk';
 import { portfoliosAsync } from '../states/portfolios/portfoliosThunk';
 import WriteProgressInputModal from '../components/Modal/WriteProgressInputModal';
 import PortfolioInputModal from '../components/Modal/PortfolioInputModal';
-import { getMyPostAsync, postsAsync } from '../states/posts/postThunk';
+import { getMyPostAsync, postsAsync, upVotesPostAsync } from '../states/posts/postThunk';
 import { getUserIdAsync } from '../states/user/userThunk';
 import HeadUserProfile from '../components/Card/HeadUserProfile';
 import AboutUserProfile from '../components/Card/AboutUserProfile';
 import SkillsUserProfile from '../components/Card/SkillsUserProfile';
 import PortfolioUser from '../components/Card/PortfolioUser';
 import { searchPost, setPageToOne } from '../states/posts/postsSlice';
-import { setPageUserToOne } from '../states/user/userSlice';
+import { setPageUserToOne, upVotes } from '../states/user/userSlice';
 import { setDeleteConfirmId } from '../states/modal/modalSlice';
 
 export default function ProfileDetailPage() {
@@ -29,6 +29,16 @@ export default function ProfileDetailPage() {
   const [activeSession, setActiveSession] = useState('Portfolio');
   const dispatch = useDispatch();
   const { id } = useParams();
+
+  const handleVotesClick = (postId) => {
+    dispatch(upVotesPostAsync({ id: postId }));
+    dispatch(
+      upVotes({
+        user_id: myProfile.id,
+        post_id: postId,
+      })
+    );
+  };
 
 
   const handlePostClick = (postId) => {    
@@ -116,6 +126,7 @@ export default function ProfileDetailPage() {
                             {...post}
                             user={user}
                             handleClick={() => handlePostClick(post.id)}
+                            handleVotesClick={() => handleVotesClick(post.id)}
                           />
                         ))
                       : ''}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Navbar from "../components/Navbar/Index";
 import Profile from "../components/Card/Profile";
 import SeePost from "../components/Card/SeePost";
@@ -6,12 +6,10 @@ import Post from "../components/Card/Post";
 import Search from "../components/Input/SearchInput";
 import SuggestedDeveloper from "../components/Card/SuggestedDeveloper";
 import MostLikedPost from "../components/Card/MostLikedPost";
-import { useNavigate } from "react-router-dom";
 import PostDetailModal from "../components/Modal/PostDetailModal";
 import WriteProgressInputModal from "../components/Modal/WriteProgressInputModal";
 import PortfolioInputModal from "../components/Modal/PortfolioInputModal";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../states/authUser/authUserThunk";
 import { myProfileAsync } from "../states/myProfile/myProfileThunk";
 import {
   getMyPostAsync,
@@ -50,12 +48,10 @@ export default function HomePage() {
   } = useSelector((state) => state.posts);
   const loadingPosts = useSelector((state) => state.posts.loading);
   const {modalProgress, modalPortfolio, postModal} = useSelector((state) => state.modal);
-  const navigate = useNavigate();
 
 
   const handleVotesClick = (postId) => {
     dispatch(upVotesPostAsync({ id: postId }));
-    dispatch(mostLikedPostsAsync());
     dispatch(
       upVotes({
         user_id: myProfile.id,
@@ -168,7 +164,7 @@ export default function HomePage() {
             </div>
             <div className="flex-col hidden gap-5 xl:flex">
               <SuggestedDeveloper />
-              <MostLikedPost />
+              {/* <MostLikedPost /> */}
             </div>
           </div>
         </div>

@@ -27,8 +27,11 @@ const isPreloadSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.isPreload = false;
       })
+      .addCase(logoutUser.rejected, (state) => {
+        state.isPreload = false;
+      })
       ;
-  }
+    }
 });
 
 export default isPreloadSlice.reducer;

@@ -24,7 +24,23 @@ const userSlice = createSlice({
     },
     setPageUserToOne: (state) => {
       state.page = 1;
-    }
+    },
+    upVotes: (state, action) => {
+      const { user_id, post_id } = action.payload;
+      const post = state.user.posts.find((post) => post.id === post_id);
+      if (post) {
+        const upvoteIndex = post.post_up_votes.findIndex(
+          (upvote) => upvote.user_id === user_id
+        );
+        if (upvoteIndex >= 0) {
+          post.post_up_votes.splice(upvoteIndex, 1);
+        }
+
+        else {
+          post.post_up_votes.push({ user_id, post_id });
+        }
+      } 
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -102,5 +118,5 @@ const userSlice = createSlice({
   }
 });
 
-export const { setPage, setPageUserToOne } = userSlice.actions;
+export const { setPage, setPageUserToOne, upVotes } = userSlice.actions;
 export default userSlice.reducer;

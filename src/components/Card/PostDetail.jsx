@@ -7,11 +7,13 @@ import PropTypes from "prop-types";
 import "animate.css";
 import { formattedDate, formattedTime } from "../../utils";
 import placeholderPhotoProfile from "../../assets/images/placeholderPhotoProfile.png";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createCommentAsync } from "../../states/comments/commentsThunk";
-import { setCurrentPostToNull } from "../../states/posts/postsSlice";
+import { onAddComment, setCurrentPostToNull, upVotesDetailPost } from "../../states/posts/postsSlice";
 import { IoClose } from "react-icons/io5";
 import { setPostModal } from "../../states/modal/modalSlice";
+import { getDetailPostAsync, upVotesPostAsync } from "../../states/posts/postThunk";
+import { ImSpinner2 } from "react-icons/im";
 
 export default function PostDetail({
   id,
@@ -25,9 +27,12 @@ export default function PostDetail({
   myProfile,
 }) {
   const [comment, setComment] = useState("");
+  const [commentError, setCommentError] = useState(false);
   const commentInputRef = useRef(null);
   const desc = { __html: content };
   const dispatch = useDispatch();
+
+  const {loadingWhenCreatingComment} = useSelector((state) => state.posts);
 
   const onCommentChangeHandler = (e) => {
     setComment(e.target.value);
@@ -38,7 +43,23 @@ export default function PostDetail({
   };
 
   const onClickCommentHandler = () => {
-    dispatch(createCommentAsync({ content: comment, post_id: id, setComment }));
+    if(content !== "") {
+      dispatch(createCommentAsync({ content: comment, post_id: id, setComment }));
+      dispatch(onAddComment({post_id: id, user_id: myProfile.id, content: comment}));
+      setCommentError(false);
+    } else {
+      setCommentError(true);
+    }
+  };
+
+  const handleVotesClick = () => {
+    dispatch(upVotesPostAsync({ id }));
+    dispatch(
+      upVotesDetailPost({
+        user_id: myProfile.id,
+        post_id: id,
+      })
+    );
   };
 
   const onCloseModal = () => {
@@ -170,22 +191,7 @@ export default function PostDetail({
           <div className="flex flex-col gap-1 px-4 pb-2 text-xs">
             <div className="flex gap-5 my-3 text-textPrimary">
               <div className="flex items-center gap-1">
-                <button
-                  className={
-                    post_up_votes.find(
-                      (vote) => myProfile && vote.user_id === myProfile.id
-                    )
-                      ? "hover:cursor-not-allowed"
-                      : ""
-                  }
-                  disabled={
-                    post_up_votes.find(
-                      (vote) => myProfile && vote.user_id === myProfile.id
-                    )
-                      ? true
-                      : false
-                  }
-                >
+                <button onClick={handleVotesClick}>
                   <img
                     src={
                       post_up_votes.find(
@@ -222,16 +228,17 @@ export default function PostDetail({
                   ref={commentInputRef}
                   className={`py-2 px-3 w-[17rem] ${
                     image ? "md:w-72" : "md:w-64"
-                  } text-[10px] bg-searchInput border border-[#262626] rounded-md text-textPrimary overflow-auto h-10 cursor-text text-sm  placeholder:text-textPrimary focus:border-[#2d2d2d] focus:outline focus:ring-0`}
+                  } text-[10px] bg-searchInput border border-[#262626] rounded-md text-textPrimary overflow-auto h-10 cursor-text text-sm  placeholder:text-textPrimary focus:border-[#2d2d2d] focus:outline focus:ring-0 `}
                   onChange={onCommentChangeHandler}
                   value={comment}
                 ></textarea>
                 <button
                   type="submit"
                   onClick={() => onClickCommentHandler()}
-                  className="bg-searchInput transition-all duration-300 hover:text-ufoGreen right-0 px-3 me-10 w-auto rounded-md py-2 h-10 text-lg font-medium hover:shadow text-[#A9A9A9] hover:bg-opacity-70"
+                  className={`${comment === "" || loadingWhenCreatingComment ? 'hover:cursor-not-allowed opacity-60' : "hover:text-ufoGreen transition-all duration-300 hover:shadow hover:bg-opacity-70"} bg-searchInput   right-0 px-3 me-10 w-auto rounded-md py-2 h-10 text-lg font-medium  text-[#A9A9A9] `}
+                  disabled={comment === "" || loadingWhenCreatingComment ?  true : false}
                 >
-                  <IoIosSend title="Send" />
+                  { loadingWhenCreatingComment ? <ImSpinner2 className="w-6 h-6 text-white animate-spin" /> : <IoIosSend title="Send" />}
                 </button>
               </div>
             </div>

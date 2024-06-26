@@ -161,7 +161,7 @@ export const upVotesPostAsync = createAsyncThunk(
     dispatch(showLoading());
     try {
       const response = await axiosInstance.post(`/api/posts/${id}/up-vote`);
-      return response.data;
+      return response.data.message;
     } catch (error) {
       toast.error(error.response.data);
       return rejectWithValue({ error: error.response.data });
