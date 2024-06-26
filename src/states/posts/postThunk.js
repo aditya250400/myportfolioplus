@@ -79,6 +79,26 @@ export const getMyPostAsync = createAsyncThunk(
   }
 );
 
+export const getUserPostAsync = createAsyncThunk(
+  'auth/getUserPost',
+  async ({ searchInput, page, id }, { dispatch, rejectWithValue }) => {
+    dispatch(showLoading());
+    try {
+      const response = await axiosInstance.get(`/api/user-post/${id}?search=${searchInput}&page=${page}`);
+      return {
+        posts: response.data.data.data,
+        current_page: response.data.data.current_page,
+        last_page: response.data.data.last_page
+      };
+    } catch (error) {
+      toast.error(error.response.data.data);
+      return rejectWithValue({ error: error.response.data });
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+);
+
 export const getDetailPostAsync = createAsyncThunk(
   'posts/getDetailPost',
   async ({ id }, { dispatch, rejectWithValue }) => {

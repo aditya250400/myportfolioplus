@@ -4,6 +4,7 @@ import {
   downVotesPostAsync,
   getDetailPostAsync,
   getMyPostAsync,
+  getUserPostAsync,
   mostLikedPostsAsync,
   postsAsync,
   updatePostAsync,
@@ -174,6 +175,30 @@ const postsSlice = createSlice({
         }
       })
       .addCase(getMyPostAsync.rejected, (state, action) => {
+        state.status = "rejected";
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getUserPostAsync.pending, (state) => {
+        state.status = "loading";
+        state.loading = state.page === 1 ? true : false;
+        state.loadingPaginate = state.page === 1 ? false : true;
+      })
+      .addCase(getUserPostAsync.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.loading = false;
+        state.loadingPaginate = false;
+        state.error = null;
+        state.current_page = action.payload.current_page;
+        state.last_page = action.payload.last_page;
+
+        if (state.current_page === 1) {
+          state.posts = action.payload.posts;
+        } else {
+          state.posts = [...state.posts, ...action.payload.posts];
+        }
+      })
+      .addCase(getUserPostAsync.rejected, (state, action) => {
         state.status = "rejected";
         state.loading = false;
         state.error = action.payload;
