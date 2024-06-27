@@ -128,6 +128,7 @@ export default function Index({ myProfile }) {
               className="bg-slate-900 transition-none text-white border-none duration-0"
               label=""
               dismissOnClick={false}
+              placement="bottom"
               renderTrigger={() => (
                 <img
                   src={

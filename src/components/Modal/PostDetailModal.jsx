@@ -33,9 +33,8 @@ export default function PostDetailModal() {
     <div className="fixed top-0 left-0 z-50 flex items-center overflow-auto justify-center w-full h-full bg-black bg-opacity-70 text-textPrimary">
       {!loadingCurrentPost ? (
         <PostDetail
-          key={currentPost.id}
           {...currentPost}
-          handleVotesClick={() => onVotesClickHandler(currentPost.id)}
+          handleVotesClick={onVotesClickHandler}
           myProfile={myProfile}
         />
       ) : 'Loading'}

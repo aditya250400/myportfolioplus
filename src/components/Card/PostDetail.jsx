@@ -8,12 +8,28 @@ import "animate.css";
 import { formattedDate, formattedTime } from "../../utils";
 import placeholderPhotoProfile from "../../assets/images/placeholderPhotoProfile.png";
 import { useDispatch, useSelector } from "react-redux";
-import { createCommentAsync } from "../../states/comments/commentsThunk";
-import { onAddComment, setCurrentPostToNull, upVotesDetailPost } from "../../states/posts/postsSlice";
+import {
+  createCommentAsync,
+  createReplyCommentAsync,
+} from "../../states/comments/commentsThunk";
+import {
+  onAddComment,
+  setCurrentPostToNull,
+  upVotesComment,
+  upVotesDetailPost,
+} from "../../states/posts/postsSlice";
 import { IoClose } from "react-icons/io5";
 import { setPostModal } from "../../states/modal/modalSlice";
-import { getDetailPostAsync, upVotesPostAsync } from "../../states/posts/postThunk";
+import {
+  getDetailPostAsync,
+  upVotesCommentAsync,
+  upVotesPostAsync,
+} from "../../states/posts/postThunk";
 import { ImSpinner2 } from "react-icons/im";
+import Comment from "./Comment";
+import ReplyComment from "./ReplyComment";
+import CommentInput from "../Input/CommentInput";
+import CommentReplyInput from "../Input/CommentReplyInput";
 
 export default function PostDetail({
   id,
@@ -27,15 +43,29 @@ export default function PostDetail({
   myProfile,
 }) {
   const [comment, setComment] = useState("");
+  const [commentReply, setCommentReply] = useState("");
   const [commentError, setCommentError] = useState(false);
+  const [commentReplyError, setCommentReplyError] = useState(false);
+  const [commentDetailForReply, setCommentDetailForReply] = useState(null);
+  const [paginateReplyComment, setPaginateReplyComment] = useState(2);
+  const [commentDetailForPagination, setCommentDetailForPagination] = useState(
+    null
+  );
+  const [replyCommentLength, setReplyCommentLength] = useState(null);
   const commentInputRef = useRef(null);
+  const commentReplyInputRef = useRef(null);
   const desc = { __html: content };
   const dispatch = useDispatch();
-
-  const {loadingWhenCreatingComment} = useSelector((state) => state.posts);
+  const {
+    loadingWhenCreatingComment,
+    loadingWhenCreatingCommentReply,
+  } = useSelector((state) => state.posts);
 
   const onCommentChangeHandler = (e) => {
     setComment(e.target.value);
+  };
+  const onCommentReplyChangeHandler = (e) => {
+    setCommentReply(e.target.value);
   };
 
   const onFocusCommentInput = () => {
@@ -43,12 +73,33 @@ export default function PostDetail({
   };
 
   const onClickCommentHandler = () => {
-    if(content !== "") {
-      dispatch(createCommentAsync({ content: comment, post_id: id, setComment }));
-      dispatch(onAddComment({post_id: id, user_id: myProfile.id, content: comment}));
+    if (comment !== "") {
+      dispatch(
+        createCommentAsync({ content: comment, post_id: id, setComment })
+      );
+      dispatch(
+        onAddComment({ post_id: id, user_id: myProfile.id, content: comment })
+      );
       setCommentError(false);
     } else {
       setCommentError(true);
+    }
+  };
+
+  const onClickCommentReplyHandler = () => {
+    if (commentReply !== "") {
+      dispatch(
+        createReplyCommentAsync({
+          content: commentReply,
+          comment_id: commentDetailForReply.id,
+          setCommentReply,
+          post_id: id,
+        })
+      );
+      setPaginateReplyComment(paginateReplyComment > 2 ? paginateReplyComment + 1 : paginateReplyComment );
+      setCommentReplyError(false);
+    } else {
+      setCommentReplyError(true);
     }
   };
 
@@ -62,10 +113,38 @@ export default function PostDetail({
     );
   };
 
+  const handleVotesCommentClick = (commentId) => {
+    dispatch(upVotesCommentAsync({ id: commentId }));
+    dispatch(
+      upVotesComment({
+        user_id: myProfile.id,
+        comment_id: commentId,
+      })
+    );
+  };
+
   const onCloseModal = () => {
     dispatch(setPostModal(false));
     dispatch(setCurrentPostToNull());
     setComment("");
+  };
+
+  const onReplyHandler = (commentDetail) => {
+    if (
+      commentDetailForReply !== null &&
+      commentDetail?.id === commentDetailForReply.id
+    ) {
+      setCommentDetailForReply(null);
+    } else {
+      setCommentDetailForReply(commentDetail);
+      setTimeout(() => commentReplyInputRef.current.focus(), 500);
+    }
+  };
+
+  const onCommentPaginate = ({ commentId, replyLength }) => {
+    setCommentDetailForPagination(commentId);
+    setReplyCommentLength(replyLength);
+    setPaginateReplyComment(replyLength)
   };
 
   return (
@@ -135,49 +214,74 @@ export default function PostDetail({
             <div className="h-[2px] mt-3 mb-5 bg-[#262626]" />
 
             {/* comment data section */}
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
               {comments.length > 0 ? (
                 comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-1">
-                    <img
-                      src={
-                        comment?.user?.photo_profile?.photo_profile ||
-                        placeholderPhotoProfile
-                      }
-                      alt="img post"
-                      className="object-cover w-8 h-8 rounded-full"
+                  <>
+                    <Comment
+                      comment={comment}
+                      key={comment.id}
+                      handleVotesCommentClick={handleVotesCommentClick}
+                      onReplyHandler={onReplyHandler}
+                      myProfile={myProfile}
                     />
-                    <div>
-                      <div className="w-full px-3 py-2 rounded-md bg-searchInput">
-                        <div className="flex flex-col mb-2">
-                          <div className="flex items-baseline gap-2">
-                            <p className="text-sm font-medium text-textPrimary">
-                              {comment.user.name}
-                            </p>
-                            <p className="text-xs text-[#7A7A7A]">•</p>
-                            <p className="text-[10px] text-[#A9A9A9]">
-                              {formattedTime(comment.updated_at)}
-                            </p>
-                          </div>
-                          <p className="text-[9px] font-medium text-textSecondary">
-                            {comment.user.biodata?.role}
-                          </p>
+                    {comment.reply_comments.length > 0
+                      ? comment.reply_comments
+                          .slice(
+                            0,
+                            commentDetailForPagination === comment.id
+                              ? paginateReplyComment : 2
+                          )
+                          .map((replyComment) => (
+                            <ReplyComment myProfile={myProfile} replyComment={replyComment} />
+                          ))
+                      : ""}
+                    {comment.reply_comments.length > 2 ? (
+                      comment.reply_comments.length === paginateReplyComment && commentDetailForPagination === comment.id ? (
+                        <div className="flex justify-end pr-4 ">
+                          <button
+                            onClick={() =>
+                              setPaginateReplyComment(2)
+                            }
+                            className="mb-5 text-[12px] font-bold text-slate-300"
+                          >
+                             Show Less
+                          </button>
                         </div>
-                        <p className="text-xs whitespace-pre-wrap">
-                          {comment.content}
-                        </p>
-                      </div>
-                      <div className="flex gap-1 my-2 text-xs text-textPrimary">
-                        <button>Like</button>
-                        <p className="text-xs text-[#7A7A7A]">•</p>
-                        <p>{comment.comments_up_votes.length}</p>
-                        <p className="text-xs mx-2 text-[#eaeaea]">|</p>
-                        <button>Reply</button>
-                        <p className="text-xs text-[#7A7A7A]">•</p>
-                        <p>{comment.reply_comments.length}</p>
-                      </div>
-                    </div>
-                  </div>
+                      ) : (
+                        <div className="flex justify-end pr-4 ">
+                          <button
+                            onClick={() =>
+                              onCommentPaginate({
+                                commentId: comment.id,
+                                replyLength: comment.reply_comments.length,
+                              })
+                            }
+                            className="mb-5 text-[12px] font-bold text-slate-300"
+                          >
+                            {comment.reply_comments.length} Replies
+                          </button>
+                        </div>
+                      )
+                    ) : (
+                      ""
+                    )}
+                    {comment.id === commentDetailForReply?.id ? (
+                      <CommentReplyInput
+                        myProfile={myProfile}
+                        commentReplyInputRef={commentReplyInputRef}
+                        onCommentReplyChangeHandler={
+                          onCommentReplyChangeHandler
+                        }
+                        commentReply={commentReply}
+                        onClickCommentReplyHandler={onClickCommentReplyHandler}
+                        loadingWhenCreatingCommentReply={
+                          loadingWhenCreatingCommentReply
+                        }
+                        image={image}
+                      />
+                    ) : null}
+                  </>
                 ))
               ) : (
                 <p className="text-sm text-textSecondary">
@@ -187,11 +291,12 @@ export default function PostDetail({
             </div>
           </div>
 
-          {/* Like and comment button section */}
+          {/* Footer Comment Section */}
           <div className="flex flex-col gap-1 px-4 pb-2 text-xs">
+            {/* Like and comment Button */}
             <div className="flex gap-5 my-3 text-textPrimary">
               <div className="flex items-center gap-1">
-                <button onClick={handleVotesClick}>
+                <button onClick={() => handleVotesClick(id)}>
                   <img
                     src={
                       post_up_votes.find(
@@ -213,35 +318,16 @@ export default function PostDetail({
                 <p>{comments.length}</p>
               </div>
             </div>
-            <div className="flex items-center w-full gap-2 ">
-              <img
-                src={
-                  myProfile === null || myProfile.photo_profile === null
-                    ? placeholderPhotoProfile
-                    : myProfile.photo_profile.photo_profile
-                }
-                alt="img post"
-                className="object-cover rounded-full w-7 h-7"
-              />
-              <div className="flex gap-2">
-                <textarea
-                  ref={commentInputRef}
-                  className={`py-2 px-3 w-[17rem] ${
-                    image ? "md:w-72" : "md:w-64"
-                  } text-[10px] bg-searchInput border border-[#262626] rounded-md text-textPrimary overflow-auto h-10 cursor-text text-sm  placeholder:text-textPrimary focus:border-[#2d2d2d] focus:outline focus:ring-0 `}
-                  onChange={onCommentChangeHandler}
-                  value={comment}
-                ></textarea>
-                <button
-                  type="submit"
-                  onClick={() => onClickCommentHandler()}
-                  className={`${comment === "" || loadingWhenCreatingComment ? 'hover:cursor-not-allowed opacity-60' : "hover:text-ufoGreen transition-all duration-300 hover:shadow hover:bg-opacity-70"} bg-searchInput   right-0 px-3 me-10 w-auto rounded-md py-2 h-10 text-lg font-medium  text-[#A9A9A9] `}
-                  disabled={comment === "" || loadingWhenCreatingComment ?  true : false}
-                >
-                  { loadingWhenCreatingComment ? <ImSpinner2 className="w-6 h-6 text-white animate-spin" /> : <IoIosSend title="Send" />}
-                </button>
-              </div>
-            </div>
+            {/* Create Comment Input */}
+            <CommentInput
+              myProfile={myProfile}
+              commentInputRef={commentInputRef}
+              onCommentChangeHandler={onCommentChangeHandler}
+              comment={comment}
+              onClickCommentHandler={onClickCommentHandler}
+              loadingWhenCreatingComment={loadingWhenCreatingComment}
+              image={image}
+            />
           </div>
         </div>
       </div>

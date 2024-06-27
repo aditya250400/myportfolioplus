@@ -191,6 +191,22 @@ export const upVotesPostAsync = createAsyncThunk(
   }
 );
 
+export const upVotesCommentAsync = createAsyncThunk(
+  'post/upVotesPost',
+  async ({ id }, { dispatch, rejectWithValue }) => {
+    dispatch(showLoading());
+    try {
+      const response = await axiosInstance.post(`/api/comments/${id}/up-vote`);
+      return response.data.message;
+    } catch (error) {
+      toast.error(error.response.data);
+      return rejectWithValue({ error: error.response.data });
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+);
+
 export const downVotesPostAsync = createAsyncThunk(
   'post/downVotesPost',
   async ({ id }, { dispatch, rejectWithValue }) => {

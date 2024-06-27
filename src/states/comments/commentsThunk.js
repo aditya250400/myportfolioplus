@@ -52,3 +52,22 @@ export const createCommentAsync = createAsyncThunk(
     }
   }
 );
+
+export const createReplyCommentAsync = createAsyncThunk(
+  'comments/createReplyComment',
+  async (commentData, { dispatch, rejectedWithValue }) => {
+    dispatch(showLoading());
+    try {
+      const response = await axiosInstance.post('/api/reply-comments', commentData);
+      toast.success(response.data.message);
+      commentData.setCommentReply('');
+      dispatch(getDetailPostAsync({id: commentData.post_id}))
+      return response.data;
+    } catch (error) {
+      toast.error(error.data.message);
+      return rejectedWithValue({ error: error.data.message });
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+);

@@ -11,7 +11,7 @@ import {
   upVotesPostAsync,
 } from "./postThunk";
 import { logoutUser } from "../authUser/authUserThunk";
-import { createCommentAsync } from "../comments/commentsThunk";
+import { createCommentAsync, createReplyCommentAsync } from "../comments/commentsThunk";
 
 const initialState = {
   posts: [],
@@ -28,6 +28,7 @@ const initialState = {
   loading: false,
   loadingWhenCreatingPost: false,
   loadingWhenCreatingComment: false,
+  loadingWhenCreatingCommentReply: false,
   loadingPaginate: false,
   loadingLikedPosts: false,
   loadingCurrentPost: false,
@@ -97,17 +98,33 @@ const postsSlice = createSlice({
           post.post_up_votes.push({ user_id, post_id });
         }
       }
-      
+    },
+    upVotesComment: (state, action) => {
+      const { user_id, comment_id } = action.payload;
+      const comment = state.currentPost.comments.find(
+        (comment) => comment.id === comment_id
+      );
+
+      if (comment) {
+        const upvoteIndex = comment.comments_up_votes.findIndex(
+          (upvote) => upvote.user_id === user_id
+        );
+        if (upvoteIndex >= 0) {
+          comment.comments_up_votes.splice(upvoteIndex, 1);
+        } else {
+          comment.comments_up_votes.push({ user_id, comment_id });
+        }
+      }
     },
     setCurrentPostToNull: (state) => {
       state.currentPost = null;
     },
     onAddComment: (state, action) => {
-      const {post_id, user_id, content} = action.payload;
+      const { post_id, user_id, content } = action.payload;
       const post = state.posts.find((post) => post.id === post_id);
 
-      if(post) {
-        post.comments.push({post_id, user_id, content});
+      if (post) {
+        post.comments.push({ post_id, user_id, content });
       }
     },
   },
@@ -205,7 +222,8 @@ const postsSlice = createSlice({
       })
       .addCase(getDetailPostAsync.pending, (state) => {
         state.status = "loading";
-        state.loadingCurrentPost = !state.postModal && !state.loadingWhenCreatingComment ? true : false;
+        state.loadingCurrentPost =
+          (!state.postModal && !state.loadingWhenCreatingComment) && !state.loadingWhenCreatingCommentReply ? true : false;
       })
       .addCase(getDetailPostAsync.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -294,8 +312,15 @@ const postsSlice = createSlice({
       })
       .addCase(createCommentAsync.rejected, (state) => {
         state.loadingWhenCreatingComment = false;
-
-
+      })
+      .addCase(createReplyCommentAsync.pending, (state) => {
+        state.loadingWhenCreatingCommentReply = true;
+      })
+      .addCase(createReplyCommentAsync.fulfilled, (state) => {
+        state.loadingWhenCreatingCommentReply = false;
+      })
+      .addCase(createReplyCommentAsync.rejected, (state) => {
+        state.loadingWhenCreatingCommentReply = false;
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.posts = [];
@@ -313,6 +338,7 @@ const postsSlice = createSlice({
         state.loadingPaginate = false;
         state.loadingWhenCreatingPost = false;
         state.loadingWhenCreatingComment = false;
+        state.loadingWhenCreatingCommentReply = false;
         state.loadingLikedPosts = false;
       });
   },
@@ -328,5 +354,6 @@ export const {
   setEditPostStatus,
   upVotesDetailPost,
   onAddComment,
+  upVotesComment
 } = postsSlice.actions;
 export default postsSlice.reducer;
