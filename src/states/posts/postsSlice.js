@@ -11,7 +11,7 @@ import {
   upVotesPostAsync,
 } from "./postThunk";
 import { logoutUser } from "../authUser/authUserThunk";
-import { createCommentAsync, createReplyCommentAsync } from "../comments/commentsThunk";
+import { createCommentAsync, createReplyCommentAsync, deleteCommentAsync, deleteCommentReplyAsync, updateCommentAsync, updateCommentReplyAsync } from "../comments/commentsThunk";
 
 const initialState = {
   posts: [],
@@ -29,6 +29,7 @@ const initialState = {
   loadingWhenCreatingPost: false,
   loadingWhenCreatingComment: false,
   loadingWhenCreatingCommentReply: false,
+  loadingWhenDeletingComment: false,
   loadingPaginate: false,
   loadingLikedPosts: false,
   loadingCurrentPost: false,
@@ -127,6 +128,18 @@ const postsSlice = createSlice({
         post.comments.push({ post_id, user_id, content });
       }
     },
+    onRemoveComment: (state, action) => {
+      const { post_id, user_id, comment_id } = action.payload;
+      const post = state.posts.find((post) => post.id === post_id);
+
+      if (post) {
+        const comment = post.comments.findIndex((comment) => comment.user_id === user_id && comment.post_id === post_id);
+
+        if(comment >= 0) {
+          post.comments.splice(comment, 1);
+        }
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -223,7 +236,7 @@ const postsSlice = createSlice({
       .addCase(getDetailPostAsync.pending, (state) => {
         state.status = "loading";
         state.loadingCurrentPost =
-          (!state.postModal && !state.loadingWhenCreatingComment) && !state.loadingWhenCreatingCommentReply ? true : false;
+          (!state.postModal && !state.loadingWhenCreatingComment) && (!state.loadingWhenCreatingCommentReply &&  !state.loadingWhenDeletingComment) ? true : false;
       })
       .addCase(getDetailPostAsync.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -267,6 +280,7 @@ const postsSlice = createSlice({
         state.status = "succeeded";
         state.loadingWhenCreatingPost = false;
         state.error = null;
+        state.currentPost = null;
       })
       .addCase(updatePostAsync.rejected, (state) => {
         state.status = "rejected";
@@ -322,6 +336,42 @@ const postsSlice = createSlice({
       .addCase(createReplyCommentAsync.rejected, (state) => {
         state.loadingWhenCreatingCommentReply = false;
       })
+      .addCase(deleteCommentAsync.pending, (state) => {
+        state.loadingWhenDeletingComment = true;
+      })
+      .addCase(deleteCommentAsync.fulfilled, (state) => {
+        state.loadingWhenDeletingComment = false;
+      })
+      .addCase(deleteCommentAsync.rejected, (state) => {
+        state.loadingWhenDeletingComment = false;
+      })
+      .addCase(deleteCommentReplyAsync.pending, (state) => {
+        state.loadingWhenDeletingComment = true;
+      })
+      .addCase(deleteCommentReplyAsync.fulfilled, (state) => {
+        state.loadingWhenDeletingComment = false;
+      })
+      .addCase(deleteCommentReplyAsync.rejected, (state) => {
+        state.loadingWhenDeletingComment = false;
+      })
+      .addCase(updateCommentAsync.pending, (state) => {
+        state.loadingWhenDeletingComment = true;
+      })
+      .addCase(updateCommentAsync.fulfilled, (state) => {
+        state.loadingWhenDeletingComment = false;
+      })
+      .addCase(updateCommentAsync.rejected, (state) => {
+        state.loadingWhenDeletingComment = false;
+      })
+      .addCase(updateCommentReplyAsync.pending, (state) => {
+        state.loadingWhenDeletingComment = true;
+      })
+      .addCase(updateCommentReplyAsync.fulfilled, (state) => {
+        state.loadingWhenDeletingComment = false;
+      })
+      .addCase(updateCommentReplyAsync.rejected, (state) => {
+        state.loadingWhenDeletingComment = false;
+      })
       .addCase(logoutUser.fulfilled, (state) => {
         state.posts = [];
         state.mostLikedPosts = [];
@@ -340,6 +390,8 @@ const postsSlice = createSlice({
         state.loadingWhenCreatingComment = false;
         state.loadingWhenCreatingCommentReply = false;
         state.loadingLikedPosts = false;
+        state.loadingWhenDeletingComment =  false;
+
       });
   },
 });
@@ -354,6 +406,7 @@ export const {
   setEditPostStatus,
   upVotesDetailPost,
   onAddComment,
-  upVotesComment
+  upVotesComment,
+  onRemoveComment
 } = postsSlice.actions;
 export default postsSlice.reducer;

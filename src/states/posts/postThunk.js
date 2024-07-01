@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import axiosInstance from '../../api/axiosConfig';
 import { myProfileAsync } from '../myProfile/myProfileThunk';
 import { setDeleteConfirmId, setModalProgress } from '../modal/modalSlice';
+import { setEditPostStatus } from './postsSlice';
 
 export const postsAsync = createAsyncThunk(
   'auth/posts',
@@ -33,7 +34,7 @@ export const deletePostAsync = createAsyncThunk(
       const response = await axiosInstance.delete(`/api/posts/${id}`);
       dispatch(getMyPostAsync({page: 1, searchInput: ''}));
       dispatch(setDeleteConfirmId(null));
-      setTimeout(() => toast.success('Post Deleted!'));
+      setTimeout(() => toast.success('Post Deleted!'), 500);
     } catch (error) {
       toast.error(error.response.data);
       return rejectWithValue({ error: error.response.data });
@@ -168,6 +169,7 @@ export const updatePostAsync = createAsyncThunk(
       dispatch(getMyPostAsync({page: 1, searchInput: ""}));
       dispatch(myProfileAsync());
       dispatch(setModalProgress(false));
+      dispatch(setEditPostStatus(false));
     } catch (error) {
       toast.error(error.response.data);
       return rejectWithValue({ error: error.response.data });

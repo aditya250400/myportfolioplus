@@ -1,6 +1,7 @@
 import React from "react";
 import { ImSpinner2 } from "react-icons/im";
 import { IoIosSend } from "react-icons/io";
+import placeholderPhotoProfile from '../../assets/images/placeholderPhotoProfile.png';
 
 const CommentInput = ({
   myProfile,

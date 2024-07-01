@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getDetailPostAsync, postsAsync, upVotesPostAsync } from '../../states/posts/postThunk';
 import PostDetail from '../Card/PostDetail';
 import Loading from '../Loading';
+import { ToastContainer } from 'react-toastify';
 
 export default function PostDetailModal() {
   const { currentPost, loading, loadingCurrentPost } = useSelector((state) => state.posts);
@@ -30,6 +31,8 @@ export default function PostDetailModal() {
   }
 
   return (
+    <>
+    
     <div className="fixed top-0 left-0 z-50 flex items-center overflow-auto justify-center w-full h-full bg-black bg-opacity-70 text-textPrimary">
       {!loadingCurrentPost ? (
         <PostDetail
@@ -39,5 +42,6 @@ export default function PostDetailModal() {
         />
       ) : 'Loading'}
     </div>
+    </>
   );
 }

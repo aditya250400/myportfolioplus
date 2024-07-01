@@ -1,12 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { deletePostAsync } from '../posts/postThunk';
 import { deletePortfolioAsync } from '../portfolios/portfoliosThunk';
+import { deleteCommentAsync, deleteCommentReplyAsync } from '../comments/commentsThunk';
 
 const initialState = {
   modalProgress: false,
   modalPortfolio: false,
   postModal: false,
   deleteConfirmId: null,
+  deleteConfirmReplyId: null,
   loadingWhenDeleting: false,
 };
 
@@ -25,6 +27,9 @@ const modalSlice = createSlice({
       },
     setDeleteConfirmId: (state, action) => {
         state.deleteConfirmId = action.payload;
+      },
+    setDeleteConfirmReplyId: (state, action) => {
+        state.deleteConfirmReplyId = action.payload;
       },
   },
   extraReducers: (builder) => {
@@ -46,9 +51,27 @@ const modalSlice = createSlice({
       })
       .addCase(deletePortfolioAsync.rejected, (state) => {
         state.loadingWhenDeleting = false
+      })
+      .addCase(deleteCommentAsync.pending, (state) => {
+        state.loadingWhenDeleting = true;
+      })
+      .addCase(deleteCommentAsync.fulfilled, (state) => {
+        state.loadingWhenDeleting = false;
+      })
+      .addCase(deleteCommentAsync.rejected, (state) => {
+        state.loadingWhenDeleting = false
+      })
+      .addCase(deleteCommentReplyAsync.pending, (state) => {
+        state.loadingWhenDeleting = true;
+      })
+      .addCase(deleteCommentReplyAsync.fulfilled, (state) => {
+        state.loadingWhenDeleting = false;
+      })
+      .addCase(deleteCommentReplyAsync.rejected, (state) => {
+        state.loadingWhenDeleting = false
       });
   }
 });
 
-export const {setDeleteConfirmId,setModalPortfolio, setModalProgress, setPostModal} = modalSlice.actions;
+export const {setDeleteConfirmId, setDeleteConfirmReplyId, setModalPortfolio, setModalProgress, setPostModal} = modalSlice.actions;
 export default modalSlice.reducer;
