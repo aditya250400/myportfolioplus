@@ -64,11 +64,11 @@ export default function SuggestedDeveloperPage() {
                 mostActiveUsers.map((userProfile) => (
                   <>
                     <MostActiveUsersProfile
-                      key={userProfile.id}
+                      key={userProfile?.id}
                       userProfile={userProfile}
                       useBorder="border rounded-xl border-[#464646]"
                     >
-                      {userProfile.id === myProfile.id
+                      {userProfile?.id === myProfile?.id
                         ? "My Profile"
                         : "See Profile"}
                     </MostActiveUsersProfile>
